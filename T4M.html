@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>ChronoQuiz | Interactive Quiz App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #10141c 0%, #1a1f2c 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      padding: 1.5rem;
+    }
+
+    /* main quiz card container */
+    .quiz-container {
+      max-width: 820px;
+      width: 100%;
+      background: rgba(18, 22, 32, 0.85);
+      backdrop-filter: blur(2px);
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(74, 144, 226, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    /* header: progress + timer */
+    .quiz-header {
+      padding: 1.6rem 2rem 1rem 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .progress-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .question-counter {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: #9aa9bb;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.2rem 0.75rem;
+      border-radius: 40px;
+      width: fit-content;
+    }
+
+    .progress-bar-bg {
+      width: 220px;
+      height: 6px;
+      background: #2a2f3e;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #4c9aff, #6c5ce7);
+      border-radius: 12px;
+      transition: width 0.25s ease;
+    }
+
+    /* TIMER MODULE */
+    .timer-module {
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      border-radius: 60px;
+      padding: 0.45rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border: 1px solid rgba(76, 154, 255, 0.3);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .timer-icon {
+      font-size: 1.25rem;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+    }
+
+    .timer-value {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #eef5ff, #cbdffc);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .timer-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #8e9db0;
+      text-transform: uppercase;
+      margin-left: 2px;
+    }
+
+    /* main question area */
+    .quiz-content {
+      padding: 2rem 2rem 1.8rem 2rem;
+    }
+
+    .question-text {
+      font-size: 1.7rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: #f0f3fa;
+      margin-bottom: 2rem;
+      letter-spacing: -0.2px;
+    }
+
+    /* options grid (answers) */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .option-item {
+      background: rgba(30, 35, 48, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1.25rem;
+      padding: 1rem 1.4rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .option-item:hover {
+      background: rgba(50, 60, 80, 0.9);
+      border-color: rgba(76, 154, 255, 0.5);
+      transform: translateX(4px);
+    }
+
+    .option-marker {
+      width: 28px;
+      height: 28px;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.1);
+      margin-right: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #acc4e6;
+      font-size: 0.85rem;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .option-text {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: #e7edff;
+      flex: 1;
+    }
+
+    /* selected state (active answer) */
+    .option-item.selected {
+      background: rgba(76, 154, 255, 0.25);
+      border-left: 4px solid #4c9aff;
+      border-radius: 1.25rem;
+      border-top-left-radius: 1rem;
+      border-bottom-left-radius: 1rem;
+    }
+
+    /* navigation */
+    .navigation-area {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 0.5rem;
+    }
+
+    .next-btn {
+      background: linear-gradient(105deg, #2c3e66, #1f2b44);
+      border: none;
+      padding: 0.9rem 2.2rem;
+      border-radius: 3rem;
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: transform 0.1s ease, background 0.2s;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(80, 140, 220, 0.5);
+      font-family: inherit;
+    }
+
+    .next-btn:active {
+      transform: scale(0.97);
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* final score card (dynamic) */
+    .final-score-card {
+      margin-top: 2rem;
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 1.5rem;
+      padding: 1.2rem 1.8rem;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 215, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      transition: all 0.2s;
+    }
+
+    .score-label {
+      font-weight: 500;
+      color: #ffdfa5;
+      letter-spacing: 0.3px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      background: rgba(255,255,240,0.08);
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+    }
+
+    .score-value {
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 2rem;
+      background: linear-gradient(145deg, #ffd966, #ffb347);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+    }
+
+    .score-detail {
+      font-size: 0.85rem;
+      color: #cddefa;
+    }
+
+    .design-note {
+      font-size: 0.7rem;
+      text-align: center;
+      color: #6c7c94;
+      padding: 1rem 2rem 1.2rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    @media (max-width: 580px) {
+      .quiz-container {
+        margin: 0;
+      }
+      .question-text {
+        font-size: 1.3rem;
+      }
+      .timer-value {
+        font-size: 1.5rem;
+      }
+      .quiz-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .progress-bar-bg {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="quiz-container">
+  <!-- header: progress & timer -->
+  <div class="quiz-header">
+    <div class="progress-area">
+      <div class="question-counter">
+        Question <span class="current-q-num">1</span> / <span class="total-q">5</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+    <div class="timer-module">
+      <span class="timer-icon">⏱️</span>
+      <span class="timer-value">00:15</span>
+      <span class="timer-label">sec left</span>
+    </div>
+  </div>
+
+  <!-- main quiz body: only ONE question at a time (dynamic) -->
+  <div class="quiz-content">
+    <div class="question-text" id="questionText">
+      What does HTML stand for?
+    </div>
+    <div class="options-list" id="optionsList">
+      <!-- options injected via JS but we keep static backup but dynamic will override -->
+      <div class="option-item" data-opt-index="0">
+        <div class="option-marker">A</div>
+        <div class="option-text">Hyper Text Markup Language</div>
+      </div>
+      <div class="option-item" data-opt-index="1">
+        <div class="option-marker">B</div>
+        <div class="option-text">Home Tool Markup Language</div>
+      </div>
+      <div class="option-item" data-opt-index="2">
+        <div class="option-marker">C</div>
+        <div class="option-text">Hyperlinks and Text Markup Language</div>
+      </div>
+      <div class="option-item" data-opt-index="3">
+        <div class="option-marker">D</div>
+        <div class="option-text">High-Level Text Management Language</div>
+      </div>
+    </div>
+
+    <div class="navigation-area">
+      <button class="next-btn" id="nextBtn">Next Question <span>→</span></button>
+    </div>
+  </div>
+
+  <!-- Final Score Display (updates dynamically) -->
+  <div class="final-score-card" id="finalScoreCard">
+    <div>
+      <span class="score-label">🏆 FINAL SCORE</span>
+      <div class="score-detail">Your performance summary</div>
+    </div>
+    <div class="score-value" id="scoreValueDisplay">
+      0 / 5
+    </div>
+    <div class="score-detail" id="scoreDetailMsg">
+      ⚡ Select answers & click next
+    </div>
+  </div>
+  <div class="design-note">
+    ⚡ Interactive Quiz | Timer auto-submits | Next moves forward | Final score auto-updates
+  </div>
+</div>
+
+<script>
+  // ======================== QUIZ DATA ==========================
+  const quizData = [
+    {
+      question: "What does HTML stand for?",
+      options: [
+        "Hyper Text Markup Language",
+        "Home Tool Markup Language",
+        "Hyperlinks and Text Markup Language",
+        "High-Level Text Management Language"
+      ],
+      correct: 0  // index A
+    },
+    {
+      question: "Which CSS property is used to change the background color?",
+      options: [
+        "color",
+        "background-color",
+        "bgcolor",
+        "background"
+      ],
+      correct: 1
+    },
+    {
+      question: "What does JavaScript enable you to do on a webpage?",
+      options: [
+        "Style elements",
+        "Add interactivity & dynamic behavior",
+        "Define the document structure",
+        "Create databases"
+      ],
+      correct: 1
+    },
+    {
+      question: "Which HTML tag is used to link an external JavaScript file?",
+      options: [
+        "<js>",
+        "<javascript>",
+        "<script>",
+        "<link>"
+      ],
+      correct: 2
+    },
+    {
+      question: "What does CSS stand for?",
+      options: [
+        "Computer Style Sheets",
+        "Creative Style Sheets",
+        "Cascading Style Sheets",
+        "Colorful Style Sheets"
+      ],
+      correct: 2
+    }
+  ];
+
+  // DOM elements
+  const questionEl = document.getElementById('questionText');
+  const optionsContainer = document.getElementById('optionsList');
+  const nextBtn = document.getElementById('nextBtn');
+  const currentQSpan = document.querySelector('.current-q-num');
+  const totalQSpan = document.querySelector('.total-q');
+  const progressFill = document.querySelector('.progress-fill');
+  const timerValueSpan = document.querySelector('.timer-value');
+  const scoreValueDisplay = document.getElementById('scoreValueDisplay');
+  const scoreDetailMsg = document.getElementById('scoreDetailMsg');
+
+  // State variables
+  let currentIndex = 0;           // 0-indexed (0 to 4)
+  let userAnswers = new Array(quizData.length).fill(null);   // stores selected option index per question
+  let timerInterval = null;
+  let timeLeft = 15;               // seconds per question
+  let isQuizFinished = false;
+  let isWaitingForNext = false;    // to avoid timer overlap while transitioning
+
+  // Helper: update final score UI anytime answers change
+  function updateFinalScoreDisplay() {
+    let correctCount = 0;
+    for (let i = 0; i < quizData.length; i++) {
+      if (userAnswers[i] !== null && userAnswers[i] === quizData[i].correct) {
+        correctCount++;
+      }
+    }
+    scoreValueDisplay.innerText = `${correctCount} / ${quizData.length}`;
+    const unanswered = userAnswers.filter(a => a === null).length;
+    if (correctCount === quizData.length && unanswered === 0) {
+      scoreDetailMsg.innerHTML = `🎉 Perfect! You nailed all questions! 🎉`;
+    } else if (unanswered > 0) {
+      scoreDetailMsg.innerHTML = `⚡ ${unanswered} question${unanswered > 1 ? 's' : ''} unanswered • Keep going!`;
+    } else {
+      scoreDetailMsg.innerHTML = `✅ You scored ${correctCount}/${quizData.length}. Great effort!`;
+    }
+  }
+
+  // Stop timer & clear interval
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  // Start timer for current question (reset to 15 seconds)
+  function startTimer() {
+    if (timerInterval) stopTimer();
+    if (isQuizFinished) return;
+    // don't start timer if quiz is done
+    if (currentIndex >= quizData.length) return;
+    timeLeft = 15;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      if (isQuizFinished || isWaitingForNext) {
+        // if quiz finished or waiting for next transition, ignore decrement
+        return;
+      }
+      if (timeLeft <= 1) {
+        // Time's up! auto move to next question (or finish)
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
+        // handle timeout: if no answer selected, keep answer as null and move
+        if (!isQuizFinished && currentIndex < quizData.length) {
+          // move to next or finish (no answer stored for current, userAnswers[currentIndex] stays null)
+          moveToNextQuestion();
+        }
+      } else {
+        timeLeft--;
+        updateTimerDisplay();
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const seconds = timeLeft;
+    const formatted = `${seconds.toString().padStart(2, '0')}`;
+    timerValueSpan.innerText = `00:${formatted}`;
+    // visual urgency
+    if (seconds <= 5) {
+      timerValueSpan.style.color = "#ffb347";
+      timerValueSpan.style.textShadow = "0 0 2px #ff6b6b";
+    } else {
+      timerValueSpan.style.color = "";
+      timerValueSpan.style.textShadow = "";
+    }
+  }
+
+  // Render current question based on currentIndex
+  function renderCurrentQuestion() {
+    if (currentIndex >= quizData.length) {
+      // quiz finished scenario
+      finishQuiz();
+      return;
+    }
+    const qData = quizData[currentIndex];
+    questionEl.innerText = qData.question;
+    // rebuild options
+    optionsContainer.innerHTML = '';
+    qData.options.forEach((opt, idx) => {
+      const optionDiv = document.createElement('div');
+      optionDiv.className = 'option-item';
+      if (userAnswers[currentIndex] === idx) {
+        optionDiv.classList.add('selected');
+      }
+      optionDiv.setAttribute('data-opt-index', idx);
+      const markerSpan = document.createElement('div');
+      markerSpan.className = 'option-marker';
+      markerSpan.innerText = String.fromCharCode(65 + idx); // A, B, C, D
+      const textSpan = document.createElement('div');
+      textSpan.className = 'option-text';
+      textSpan.innerText = opt;
+      optionDiv.appendChild(markerSpan);
+      optionDiv.appendChild(textSpan);
+      // add click listener
+      optionDiv.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (isQuizFinished) return;
+        if (currentIndex >= quizData.length) return;
+        // update answer for current question
+        userAnswers[currentIndex] = idx;
+        // re-render to reflect selected style
+        renderCurrentQuestion();  // re-render to update selected class
+        updateFinalScoreDisplay();
+        // small haptic: timer continues, but answer saved
+      });
+      optionsContainer.appendChild(optionDiv);
+    });
+
+    // Update progress text & bar
+    currentQSpan.innerText = currentIndex + 1;
+    totalQSpan.innerText = quizData.length;
+    const progressPercent = ((currentIndex + 1) / quizData.length) * 100;
+    progressFill.style.width = `${progressPercent}%`;
+
+    // adjust button text if last question
+    if (currentIndex === quizData.length - 1) {
+      nextBtn.innerText = 'Finish Quiz →';
+    } else {
+      nextBtn.innerText = 'Next Question →';
+    }
+  }
+
+  // move to next question or finish
+  function moveToNextQuestion() {
+    if (isQuizFinished) return;
+    // if currently in a state where currentIndex is last, then finish
+    if (currentIndex + 1 >= quizData.length) {
+      // finish quiz
+      finishQuiz();
+      return;
+    }
+    // otherwise move to next question
+    // stop current timer
+    stopTimer();
+    isWaitingForNext = true;
+    // increment index
+    currentIndex++;
+    // re-render new question
+    renderCurrentQuestion();
+    // reset timer for new question
+    isWaitingForNext = false;
+    startTimer();
+    updateFinalScoreDisplay();
+  }
+
+  // Finalize quiz: disable selections, stop timer, show final summary, disable next button
+  function finishQuiz() {
+    if (isQuizFinished) return;
+    isQuizFinished = true;
+    stopTimer();
+    // final score update
+    updateFinalScoreDisplay();
+    // disable all option clicks by removing event listeners or overlaying style: we'll block click by disabling listeners via render freeze
+    // re-render final state: show last question? but we show a summary view or just disable interaction
+    // we set the container to readonly mode: remove all option click listeners and disable next button.
+    // also show completion message
+    const allOptions = document.querySelectorAll('.option-item');
+    allOptions.forEach(opt => {
+      const newClone = opt.cloneNode(true);
+      opt.parentNode?.replaceChild(newClone, opt);
+      newClone.style.cursor = 'default';
+      newClone.style.opacity = '0.7';
+      newClone.style.pointerEvents = 'none';
+    });
+    // disable next button
+    nextBtn.disabled = true;
+    nextBtn.style.cursor = 'not-allowed';
+    nextBtn.style.opacity = '0.6';
+    // update timer display to done
+    timerValueSpan.innerText = `00:00`;
+    const totalCorrect = userAnswers.reduce((acc, ans, idx) => {
+      if (ans !== null && ans === quizData[idx].correct) return acc + 1;
+      return acc;
+    }, 0);
+    scoreDetailMsg.innerHTML = `🎯 Final result: ${totalCorrect}/${quizData.length}. Refresh to replay.`;
+    // show final score as done
+    scoreValueDisplay.innerText = `${totalCorrect} / ${quizData.length}`;
+    // optionally disable question text interaction
+    const optionsContainerDiv = document.getElementById('optionsList');
+    if (optionsContainerDiv) {
+      optionsContainerDiv.style.pointerEvents = 'none';
+    }
+  }
+
+  // Reset/restart timer on answer if needed, but timer continues; also handle next click
+  function onNextClick() {
+    if (isQuizFinished) return;
+    // If the current question has no selected answer, we still allow moving forward (user can skip)
+    // But we do not auto-select anything. Just move.
+    // Additional: check if we are at last question
+    if (currentIndex === quizData.length - 1) {
+      // finishing quiz
+      finishQuiz();
+    } else {
+      // move to next question
+      // if timer is running, stop it
+      stopTimer();
+      // increment index
+      currentIndex++;
+      renderCurrentQuestion();
+      startTimer();
+      updateFinalScoreDisplay();
+    }
+  }
+
+  // Initialize the quiz and attach event listeners
+  function initQuiz() {
+    totalQSpan.innerText = quizData.length;
+    // reset state
+    currentIndex = 0;
+    userAnswers.fill(null);
+    isQuizFinished = false;
+    isWaitingForNext = false;
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    timeLeft = 15;
+    renderCurrentQuestion();
+    startTimer();
+    updateFinalScoreDisplay();
+    // attach next button listener
+    if (nextBtn) {
+      // remove any existing listeners to avoid duplication
+      const newNext = nextBtn.cloneNode(true);
+      nextBtn.parentNode?.replaceChild(newNext, nextBtn);
+      const finalNextBtn = document.getElementById('nextBtn');
+      if (finalNextBtn) {
+        finalNextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          onNextClick();
+        });
+      }
+    }
+  }
+
+  // Additional protection for final score re-evaluation after each answer (already in answer click)
+  // Also update score when moving via timer's moveToNextQuestion calls
+  // Override moveToNextQuestion but we also want to ensure final score updates after time-out moves
+  const originalMoveNext = moveToNextQuestion;
+  window.moveToNextQuestion = function() {
+    originalMoveNext();
+    updateFinalScoreDisplay();
+  };
+  // but since moveToNextQuestion is defined above we can keep reference, but we will reassign to also update score
+  // but we already have update inside finishQuiz and inside onNextClick, but for timer-based we need consistency.
+  // Override moveToNextQuestion to include final score update after increment (score updates after answer changes).
+  // However the moveToNextQuestion is used internally only, and we call updateFinalScoreDisplay inside after moving.
+  // To guarantee, let's patch the function:
+  const superMove = moveToNextQuestion;
+  const patchedMove = function() {
+    superMove();
+    updateFinalScoreDisplay();
+  };
+  // replace reference but careful with scope: we need to redefine in place.
+  // Simpler: add update inside moveToNextQuestion definition (rewrite)
+  // But I'll ensure that after moveToNextQuestion calls render and startTimer, we also call updateFinalScoreDisplay.
+  // Since moveToNextQuestion already has updateFinalScoreDisplay? no. So i'll redefine moveToNextQuestion on the fly with binding.
+  // The safest: override moveToNextQuestion on the global function but also ensure existing references.
+  window.moveToNextQuestion = function() {
+    if (isQuizFinished) return;
+    if (currentIndex + 1 >= quizData.length) {
+      finishQuiz();
+      updateFinalScoreDisplay();
+      return;
+    }
+    stopTimer();
+    isWaitingForNext = true;
+    currentIndex++;
+    renderCurrentQuestion();
+    isWaitingForNext = false;
+    startTimer();
+    updateFinalScoreDisplay();
+  };
+  // Now we also need to adapt finishQuiz & next handlers accordingly; but we have separate onNextClick and timer uses moveToNextQuestion.
+  // For timer interval timeout it calls moveToNextQuestion, so use our new version.
+  // Let's also sync the next button function to call window.moveToNextQuestion? but onNextClick does the logic: It has similar functionality.
+  // To avoid duplicate code, unify navigation: we can make nextBtn use moveToNextQuestion logic for consistency.
+  // Rebind onNextClick to use unified handler.
+  const unifiedNextHandler = function() {
+    if (isQuizFinished) return;
+    if (currentIndex === quizData.length - 1) {
+      finishQuiz();
+      updateFinalScoreDisplay();
+    } else {
+      // call patched move to next
+      if (window.moveToNextQuestion) {
+        window.moveToNextQuestion();
+      } else {
+        // fallback
+        stopTimer();
+        currentIndex++;
+        renderCurrentQuestion();
+        startTimer();
+        updateFinalScoreDisplay();
+      }
+    }
+  };
+  // Override next button listener
+  function attachFinalListeners() {
+    const nextButton = document.getElementById('nextBtn');
+    if (nextButton) {
+      const newBtn = nextButton.cloneNode(true);
+      nextButton.parentNode?.replaceChild(newBtn, nextButton);
+      const freshNext = document.getElementById('nextBtn');
+      if (freshNext) {
+        freshNext.addEventListener('click', (e) => {
+          e.preventDefault();
+          unifiedNextHandler();
+        });
+      }
+    }
+  }
+  // Redefine moveToNextQuestion and attach final.
+  window.moveToNextQuestion = function() {
+    if (isQuizFinished) return;
+    if (currentIndex + 1 >= quizData.length) {
+      finishQuiz();
+      updateFinalScoreDisplay();
+      return;
+    }
+    stopTimer();
+    isWaitingForNext = true;
+    currentIndex++;
+    renderCurrentQuestion();
+    isWaitingForNext = false;
+    startTimer();
+    updateFinalScoreDisplay();
+  };
+  
+  // reset and start
+  function fullRestart() {
+    // reset all states
+    if (timerInterval) clearInterval(timerInterval);
+    currentIndex = 0;
+    userAnswers = new Array(quizData.length).fill(null);
+    isQuizFinished = false;
+    isWaitingForNext = false;
+    timeLeft = 15;
+    renderCurrentQuestion();
+    startTimer();
+    updateFinalScoreDisplay();
+    // re-enable pointer events for options container
+    const optsContainer = document.getElementById('optionsList');
+    if (optsContainer) optsContainer.style.pointerEvents = '';
+    const nextBut = document.getElementById('nextBtn');
+    if (nextBut) {
+      nextBut.disabled = false;
+      nextBut.style.opacity = '1';
+      nextBut.style.cursor = 'pointer';
+    }
+    // remove any disabled class from options
+    const allOpts = document.querySelectorAll('.option-item');
+    allOpts.forEach(opt => {
+      opt.style.pointerEvents = '';
+      opt.style.cursor = 'pointer';
+      opt.style.opacity = '';
+    });
+  }
+
+  // initial launch
+  fullRestart();
+  // ensure final score updates after any answer click due to re-render call also triggers updateFinalScoreDisplay inside render?
+  // answer click inside renderCurrentQuestion does updateFinalScoreDisplay after setting userAnswers[currentIndex] = idx; so good.
+  // Also ensure after timer move, final score updates.
+</script>
+</body>
+</html>

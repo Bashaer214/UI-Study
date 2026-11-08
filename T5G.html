@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>UrbanCart | Modern E‑commerce</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background: #f4f6fa;
+      color: #1e293b;
+      line-height: 1.4;
+    }
+
+    /* Header & cart */
+    .app-header {
+      background: white;
+      backdrop-filter: blur(0px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03), 0 2px 6px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid #e9eef3;
+    }
+
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1e3c72, #2b4c7c);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+    .logo span {
+      font-size: 0.85rem;
+      font-weight: normal;
+      color: #5b6e8c;
+      display: block;
+      margin-top: 4px;
+    }
+
+    .cart-icon {
+      position: relative;
+      cursor: pointer;
+      background: #f1f5f9;
+      padding: 0.7rem 1.3rem;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .cart-icon:hover {
+      background: #e6edf4;
+      transform: scale(0.98);
+    }
+    .cart-icon svg {
+      width: 26px;
+      height: 26px;
+      stroke: #1e293b;
+      stroke-width: 1.8;
+      fill: none;
+    }
+    .cart-count {
+      background: #c2410c;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+      min-width: 28px;
+      height: 28px;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      box-shadow: 0 2px 6px rgba(194,65,12,0.3);
+    }
+
+    /* filter bar */
+    .filter-section {
+      background: white;
+      margin: 1.5rem 2rem 0 2rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: 60px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.8rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02), 0 1px 0 #eef2f6;
+      border: 1px solid #eef2f8;
+    }
+    .filter-label {
+      font-weight: 600;
+      color: #334155;
+      background: #f8fafc;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+    }
+    .filter-btn {
+      border: none;
+      background: #f1f5f9;
+      padding: 0.5rem 1.3rem;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #1e293b;
+    }
+    .filter-btn.active {
+      background: #1e3c72;
+      color: white;
+      box-shadow: 0 4px 8px rgba(30,60,114,0.2);
+    }
+    .filter-btn:hover:not(.active) {
+      background: #e2e8f0;
+      transform: translateY(-1px);
+    }
+
+    /* products grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 2rem;
+      margin-top: 1.8rem;
+    }
+
+    /* product card */
+    .product-card {
+      background: white;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.05);
+      border: 1px solid #edf2f7;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 30px -12px rgba(0,0,0,0.12);
+      border-color: #cbdde9;
+    }
+    .card-img {
+      background: #f9fbfd;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      border-bottom: 1px solid #eef2f8;
+    }
+    .card-img img {
+      max-width: 100%;
+      max-height: 140px;
+      object-fit: contain;
+      transition: transform 0.2s;
+    }
+    .product-card:hover .card-img img {
+      transform: scale(1.02);
+    }
+    .card-info {
+      padding: 1.3rem 1.2rem 1.2rem;
+      flex: 1;
+    }
+    .product-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 0.4rem;
+      line-height: 1.3;
+    }
+    .product-category {
+      display: inline-block;
+      background: #eef2ff;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #1e3c72;
+      margin: 0.6rem 0 0.8rem 0;
+    }
+    .product-price {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0f2b3f;
+      margin: 0.5rem 0;
+    }
+    .product-price small {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #5e6f8d;
+    }
+    .add-to-cart {
+      width: 100%;
+      background: #1e3c72;
+      border: none;
+      padding: 0.8rem 0;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 0.8rem;
+    }
+    .add-to-cart:hover {
+      background: #0f2b4f;
+      transform: scale(0.98);
+    }
+    .add-to-cart:active {
+      transform: scale(0.96);
+    }
+
+    /* empty / no results */
+    .empty-message {
+      text-align: center;
+      grid-column: 1 / -1;
+      padding: 4rem;
+      background: #fef9e8;
+      border-radius: 2rem;
+      color: #7c6b3f;
+      font-weight: 500;
+    }
+
+    /* cart snackbar (toast) */
+    .toast-notify {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+      background: rgba(30, 41, 59, 0.9);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+    .toast-notify.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* responsive */
+    @media (max-width: 680px) {
+      .app-header, .filter-section {
+        margin-left: 1rem;
+        margin-right: 1rem;
+      }
+      .products-grid {
+        margin: 1.5rem;
+        gap: 1.2rem;
+      }
+      .filter-section {
+        border-radius: 2rem;
+        padding: 0.8rem 1rem;
+      }
+      .cart-icon {
+        padding: 0.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="logo">
+    <h1>⚡ UrbanCart</h1>
+    <span>style meets convenience</span>
+  </div>
+  <div class="cart-icon" id="cartIconBtn">
+    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none">
+      <path d="M6 6L7 16H18L19 6H6Z" stroke="currentColor" fill="white" />
+      <path d="M9 6V5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V6" stroke="currentColor" fill="none" />
+      <circle cx="9" cy="19" r="1.5" stroke="currentColor" fill="white" />
+      <circle cx="17" cy="19" r="1.5" stroke="currentColor" fill="white" />
+    </svg>
+    <span class="cart-count" id="cartCounter">0</span>
+  </div>
+</div>
+
+<div class="filter-section">
+  <span class="filter-label">🔍 Filter by</span>
+  <button class="filter-btn active" data-category="all">✨ All</button>
+  <button class="filter-btn" data-category="electronics">📱 Electronics</button>
+  <button class="filter-btn" data-category="fashion">👕 Fashion</button>
+  <button class="filter-btn" data-category="home">🏠 Home & Living</button>
+</div>
+
+<div class="products-grid" id="productsGrid">
+  <!-- dynamic product cards injected here -->
+</div>
+
+<div id="toastMsg" class="toast-notify">✨ Item added to cart</div>
+
+<script>
+  // ---------- PRODUCT DATABASE ----------
+  const PRODUCTS = [
+    { id: 1, name: "Wireless Headphones", category: "electronics", price: 79.99, image: "🎧", imgAlt: "headphones" },
+    { id: 2, name: "Smart Watch", category: "electronics", price: 199.99, image: "⌚", imgAlt: "smartwatch" },
+    { id: 3, name: "Premium Sneakers", category: "fashion", price: 89.99, image: "👟", imgAlt: "sneakers" },
+    { id: 4, name: "Cotton T-Shirt", category: "fashion", price: 24.99, image: "👕", imgAlt: "tshirt" },
+    { id: 5, name: "Ceramic Coffee Mug", category: "home", price: 14.99, image: "☕", imgAlt: "mug" },
+    { id: 6, name: "LED Desk Lamp", category: "home", price: 39.99, image: "💡", imgAlt: "lamp" },
+    { id: 7, name: "Noise Cancelling Earbuds", category: "electronics", price: 129.99, image: "🎵", imgAlt: "earbuds" },
+    { id: 8, name: "Denim Jacket", category: "fashion", price: 119.99, image: "🧥", imgAlt: "jacket" },
+    { id: 9, name: "Decorative Throw Pillow", category: "home", price: 29.99, image: "🛋️", imgAlt: "pillow" }
+  ];
+
+  // ----------------- STATE -----------------
+  let cart = [];        // stores product objects with quantity? we'll store items with id + quantity for simplicity & count distinct quantity for count display
+  // Actually cart count = total number of items (sum of quantities)
+  // For simplicity and better demo, we store items as { id, name, price, quantity } 
+  // but product display just increments quantity on each add.
+  
+  let currentCategory = "all";   // "all", "electronics", "fashion", "home"
+
+  // Helper to load cart from localStorage (optional but nice)
+  function loadCartFromStorage() {
+    const stored = localStorage.getItem("urban_cart");
+    if (stored) {
+      try {
+        cart = JSON.parse(stored);
+        if (!Array.isArray(cart)) cart = [];
+      } catch(e) { cart = []; }
+    } else {
+      cart = [];
+    }
+    // ensure each item has quantity field (migration)
+    cart = cart.map(item => ({ ...item, quantity: item.quantity || 1 }));
+    updateCartUI();
+  }
+
+  function saveCartToStorage() {
+    localStorage.setItem("urban_cart", JSON.stringify(cart));
+  }
+
+  // Add product to cart: increments quantity if product exists, else adds new entry
+  function addToCart(product) {
+    const existing = cart.find(item => item.id === product.id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        category: product.category
+      });
+    }
+    saveCartToStorage();
+    updateCartUI();
+    showToast(`🛍️ ${product.name} added to cart`);
+  }
+
+  // Compute total unique items count (sum of quantities)
+  function getTotalCartCount() {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  }
+
+  // update cart badge and also provide a tiny console friendly
+  function updateCartUI() {
+    const countSpan = document.getElementById('cartCounter');
+    const totalItems = getTotalCartCount();
+    countSpan.innerText = totalItems;
+    // subtle animation? just update
+  }
+
+  // toast message with auto hide
+  let toastTimeout = null;
+  function showToast(message) {
+    const toastEl = document.getElementById('toastMsg');
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastEl.innerText = message;
+    toastEl.classList.add('show');
+    toastTimeout = setTimeout(() => {
+      toastEl.classList.remove('show');
+    }, 1800);
+  }
+
+  // render product cards based on current category filter
+  function renderProducts() {
+    const grid = document.getElementById('productsGrid');
+    if (!grid) return;
+
+    let filteredProducts = PRODUCTS;
+    if (currentCategory !== 'all') {
+      filteredProducts = PRODUCTS.filter(p => p.category === currentCategory);
+    }
+
+    if (filteredProducts.length === 0) {
+      grid.innerHTML = `<div class="empty-message">✨ No products in this category. Try another filter! ✨</div>`;
+      return;
+    }
+
+    // generate cards html
+    const cardsHTML = filteredProducts.map(product => {
+      // for better visuals: we map image to a nice emoji but also can use data-url for fun.
+      // but to have img tag, we replace emoji with a styled span + svg alternative? we'll use clean emoji + background
+      // To respect the professional feel, we'll show emoji big and clear.
+      // Option: could also embed fontawesome but emoji works universally.
+      const displayImage = product.image;
+      return `
+        <div class="product-card" data-product-id="${product.id}">
+          <div class="card-img">
+            <div style="font-size: 5rem; line-height: 1;">${displayImage}</div>
+          </div>
+          <div class="card-info">
+            <div class="product-title">${escapeHtml(product.name)}</div>
+            <div class="product-category">${escapeHtml(product.category)}</div>
+            <div class="product-price">$${product.price.toFixed(2)} <small>USD</small></div>
+            <button class="add-to-cart" data-id="${product.id}" data-name="${escapeHtml(product.name)}" data-price="${product.price}" data-category="${product.category}">
+              <span>🛒</span> Add to Cart
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    grid.innerHTML = cardsHTML;
+
+    // attach event listeners to each "Add to cart" button (delegation also possible but direct)
+    const allAddButtons = grid.querySelectorAll('.add-to-cart');
+    allAddButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = parseInt(btn.getAttribute('data-id'));
+        const name = btn.getAttribute('data-name');
+        const price = parseFloat(btn.getAttribute('data-price'));
+        const category = btn.getAttribute('data-category');
+        const product = { id, name, price, category };
+        addToCart(product);
+      });
+    });
+  }
+
+  // simple escape to avoid XSS
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+      return c;
+    });
+  }
+
+  // highlight active filter button
+  function setActiveFilterButton(category) {
+    const btns = document.querySelectorAll('.filter-btn');
+    btns.forEach(btn => {
+      const btnCat = btn.getAttribute('data-category');
+      if (btnCat === category) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  // filter change handler
+  function setCategory(category) {
+    currentCategory = category;
+    setActiveFilterButton(category);
+    renderProducts();
+  }
+
+  // initialize filter listeners
+  function initFilters() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const category = btn.getAttribute('data-category');
+        setCategory(category);
+      });
+    });
+  }
+
+  // optional cart icon click to show cart summary alert (for demonstration of cart items)
+  function initCartPopup() {
+    const cartBtn = document.getElementById('cartIconBtn');
+    if (cartBtn) {
+      cartBtn.addEventListener('click', () => {
+        if (cart.length === 0) {
+          showToast("🛒 Your cart is empty. Add some goodies!");
+          return;
+        }
+        // build a readable summary
+        let summary = "🛍️ Your Cart:\n";
+        let total = 0;
+        cart.forEach(item => {
+          const subtotal = item.price * item.quantity;
+          total += subtotal;
+          summary += `• ${item.name}  x${item.quantity}  → $${subtotal.toFixed(2)}\n`;
+        });
+        summary += `\n💰 Total: $${total.toFixed(2)}\n\nTap OK to keep shopping.`;
+        alert(summary);
+      });
+    }
+  }
+
+  // extra: simulate initial load and maybe provide a small clear cart? but not required. but good user experience: double click on cart counter to reset? optional but not mandatory.
+  // optional additional bonus: clear cart hidden feature? but not needed, but to maintain demo, we keep only add & view cart.
+  // since it's professional, ensure dynamic update of cart count on every add.
+  
+  // sync storage across tabs? optional but we use storage event for multi-tab consistency? not needed but nice to have
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'urban_cart') {
+      loadCartFromStorage();
+      renderProducts(); // re-render to maintain fresh UI? no need but if product count reflect cart count? cart count update is enough
+      // also for safety we call updateCartUI already inside loadCartFromStorage.
+    }
+  });
+
+  // one more: handle if someone wants to reset manually? not mandatory, but we also allow no reset. fine
+  
+  // final initialization:
+  function init() {
+    loadCartFromStorage();   // loads cart & updates count
+    initFilters();
+    initCartPopup();
+    renderProducts();       // initial render with category 'all'
+    // ensure sync: if products render, cart count displayed correctly
+    // also if any external changes
+  }
+
+  // attach DOM ready event
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>
+</body>
+</html>

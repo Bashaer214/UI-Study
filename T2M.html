@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Dark/Light Mode Toggle | Pure CSS + JS Enhancement</title>
+    <style>
+        /* ---------- CSS RESET & BASE ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.25s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body {
+            font-family: system-ui, 'Segoe UI', 'Inter', 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 1.5rem;
+            line-height: 1.5;
+        }
+
+        /* main container card */
+        .mode-card {
+            max-width: 620px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 2rem;
+            padding: 2rem 2rem 2.25rem;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(0px);
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* header area with title + toggle */
+        .mode-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-soft);
+        }
+
+        h1 {
+            font-size: 1.85rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            background: var(--heading-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 1px 0 var(--glow-light);
+        }
+
+        /* ---- TOGGLE BUTTON (pure CSS base, but JS will manage theme switching for full dynamic control) ---- */
+        /* We keep the existing checkbox and label structure but enhance with JS.
+           JS will handle theme switching by toggling a data-theme attribute on html/body,
+           and also keep the checkbox state in sync. This provides better control,
+           persists preference, and works reliably across all interactions.
+        */
+        
+        /* Theme CSS variables (light as default) */
+        :root {
+            --bg-primary: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --border-subtle: #e2e8f0;
+            --border-soft: #cbd5e1;
+            --shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --heading-gradient: linear-gradient(135deg, #1e293b, #2d3a4f);
+            --glow-light: rgba(255,255,240,0.2);
+            --toggle-bg: #eef2ff;
+            --toggle-border: #cbd5e1;
+            --toggle-knob: #ffffff;
+            --toggle-icon-sun: #f59e0b;
+            --toggle-icon-moon: #94a3b8;
+            --btn-text: #1e293b;
+            --btn-hover: #e2e8f0;
+            --accent-focus: #3b82f6;
+        }
+
+        /* Dark theme overrides - applied when html has data-theme="dark" */
+        html[data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #e2e8f0;
+            --text-secondary: #cbd5e6;
+            --border-subtle: #334155;
+            --border-soft: #475569;
+            --shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+            --heading-gradient: linear-gradient(135deg, #cbd5e6, #94a3b8);
+            --glow-light: rgba(0,0,0,0.2);
+            --toggle-bg: #2d3a4f;
+            --toggle-border: #475569;
+            --toggle-knob: #facc15;
+            --toggle-icon-sun: #fde047;
+            --toggle-icon-moon: #cbd5e6;
+            --btn-text: #f1f5f9;
+            --btn-hover: #334155;
+            --accent-focus: #60a5fa;
+        }
+
+        /* Hide the actual checkbox input visually but keep it accessible */
+        .theme-switch {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        /* ----- CUSTOM TOGGLE BUTTON (Label) ----- */
+        .toggle-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            background-color: var(--toggle-bg);
+            border: 1.5px solid var(--toggle-border);
+            border-radius: 60px;
+            padding: 0.5rem 1.1rem 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 550;
+            font-size: 0.95rem;
+            backdrop-filter: blur(2px);
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            color: var(--btn-text);
+        }
+
+        .toggle-label:hover {
+            transform: scale(0.97);
+            background-color: var(--btn-hover);
+            border-color: var(--accent-focus);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .toggle-label:active {
+            transform: scale(0.95);
+        }
+
+        .toggle-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+            display: inline-block;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+        }
+
+        .mode-text {
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
+
+        /* Dynamic label text switching based on theme attribute (no JS needed for visual, but JS toggles attribute) */
+        html[data-theme="light"] .toggle-label .light-label {
+            display: inline-flex;
+        }
+        html[data-theme="light"] .toggle-label .dark-label {
+            display: none;
+        }
+        
+        html[data-theme="dark"] .toggle-label .light-label {
+            display: none;
+        }
+        html[data-theme="dark"] .toggle-label .dark-label {
+            display: inline-flex;
+        }
+        
+        /* Default (light mode) */
+        .toggle-label .light-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .toggle-label .dark-label {
+            display: none;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* ----- CONTENT SECTION (example cards & text) ----- */
+        .content-section {
+            margin-top: 1rem;
+        }
+
+        .welcome-text {
+            font-size: 1.15rem;
+            margin-bottom: 1.75rem;
+            color: var(--text-secondary);
+            border-left: 4px solid var(--accent-focus);
+            padding-left: 1rem;
+            font-weight: 450;
+        }
+
+        .feature-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin: 1.8rem 0 1.2rem;
+        }
+
+        .feature-card {
+            flex: 1;
+            min-width: 150px;
+            background: var(--card-bg);
+            border-radius: 1.25rem;
+            padding: 1.2rem 0.9rem;
+            text-align: center;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-focus);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .demo-btn {
+            display: inline-block;
+            background-color: var(--toggle-bg);
+            color: var(--btn-text);
+            border: 1px solid var(--border-soft);
+            padding: 0.65rem 1.4rem;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: default;
+            transition: all 0.2s;
+            margin-top: 0.6rem;
+            backdrop-filter: blur(2px);
+        }
+
+        .demo-btn:hover {
+            background-color: var(--btn-hover);
+            border-color: var(--accent-focus);
+        }
+
+        footer {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            text-align: center;
+            color: var(--text-secondary);
+            border-top: 1px dashed var(--border-subtle);
+            padding-top: 1.25rem;
+        }
+
+        .toggle-label:focus-visible {
+            outline: 3px solid var(--accent-focus);
+            outline-offset: 3px;
+        }
+
+        .theme-switch:focus-visible + .toggle-label {
+            outline: 2px solid var(--accent-focus);
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .mode-card {
+                padding: 1.5rem;
+            }
+            .mode-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .feature-grid {
+                flex-direction: column;
+            }
+            .feature-card {
+                min-width: auto;
+            }
+            h1 {
+                font-size: 1.55rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hidden checkbox for accessibility and to provide a state for screen readers,
+         but theme switching will be fully handled by JavaScript to ensure robust dynamic behavior
+         and localStorage persistence. The checkbox syncs with JS. -->
+    <input type="checkbox" id="global-theme-toggle" class="theme-switch" aria-label="Dark/Light mode toggle">
+
+    <!-- The main application container — all elements here inherit dynamic CSS variables -->
+    <div class="app-container">
+        <div class="mode-card">
+            <div class="mode-header">
+                <h1>✨ Chroma UI</h1>
+                <!-- The visible toggle button that changes background, text, button color dynamically -->
+                <label for="global-theme-toggle" class="toggle-label" tabindex="0" id="themeToggleLabel">
+                    <!-- Light mode text + icon (visible in light theme) -->
+                    <span class="light-label">
+                        <span class="toggle-icon">☀️</span>
+                        <span class="mode-text">Dark mode</span>
+                    </span>
+                    <!-- Dark mode text + icon (visible in dark theme) -->
+                    <span class="dark-label">
+                        <span class="toggle-icon">🌙</span>
+                        <span class="mode-text">Light mode</span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="content-section">
+                <div class="welcome-text">
+                    🌓 Seamless theme switching — JavaScript-enhanced with localStorage & smooth transitions.
+                    Click the toggle above and see background, text, and button colors adapt.
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <div class="feature-title">Dynamic Variables</div>
+                        <div class="feature-desc">Background, text & card colors shift smoothly.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-title">Instant Toggle</div>
+                        <div class="feature-desc">Light ↔ Dark with a single click. No reload.</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧩</div>
+                        <div class="feature-title">Button Color</div>
+                        <div class="feature-desc">Toggle button background & text also change.</div>
+                    </div>
+                </div>
+
+                <!-- Demo button to show button color dynamic -->
+                <div style="display: flex; justify-content: center; margin: 1.2rem 0 0.8rem;">
+                    <div class="demo-btn">
+                        🌈 Dynamic button style
+                    </div>
+                </div>
+                <p style="font-size: 0.9rem; text-align: center; color: var(--text-secondary); margin-top: 0.5rem;">
+                    🧩 The toggle button background, border, text, and icon colors change instantly.<br>
+                    <strong style="font-size:0.8rem;">✨ Theme preference saved in your browser (localStorage) ✨</strong>
+                </p>
+            </div>
+            <footer>
+                ☯ Enhanced dark/light mode • JavaScript + CSS custom properties • <code style="background: var(--border-subtle); padding: 0.2rem 0.4rem; border-radius: 8px;">localStorage</code> support
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // JavaScript Theme Controller - Pure JS, no external libraries
+        // Handles:
+        // - Dynamic theme switching (dark/light)
+        // - Synchronizes checkbox state with current theme
+        // - Persists user preference in localStorage
+        // - Respects system preference on first visit (optional)
+        // - Updates all CSS variables via data-theme attribute on html
+        // - Ensures smooth transitions and dynamic button color updates
+        // ============================================================
+        
+        (function() {
+            // DOM elements
+            const checkbox = document.getElementById('global-theme-toggle');
+            const htmlElement = document.documentElement;
+            
+            // Theme constants
+            const THEME_LIGHT = 'light';
+            const THEME_DARK = 'dark';
+            const STORAGE_KEY = 'chroma-ui-theme';
+            
+            // Helper function to get current theme from html attribute
+            function getCurrentTheme() {
+                return htmlElement.getAttribute('data-theme') || THEME_LIGHT;
+            }
+            
+            // Apply theme by setting data-theme attribute and sync checkbox
+            function setTheme(theme) {
+                if (theme !== THEME_LIGHT && theme !== THEME_DARK) {
+                    theme = THEME_LIGHT; // fallback
+                }
+                
+                // Set the data-theme attribute on html root
+                htmlElement.setAttribute('data-theme', theme);
+                
+                // Sync checkbox state: checked = dark mode, unchecked = light mode
+                if (checkbox) {
+                    checkbox.checked = (theme === THEME_DARK);
+                }
+                
+                // Save preference to localStorage
+                try {
+                    localStorage.setItem(STORAGE_KEY, theme);
+                } catch (e) {
+                    // Silently fail if localStorage is not available (e.g., private mode)
+                    console.warn('localStorage not available', e);
+                }
+                
+                // Dispatch a custom event for any other components that might listen (optional)
+                window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }));
+            }
+            
+            // Toggle between light and dark modes
+            function toggleTheme() {
+                const currentTheme = getCurrentTheme();
+                const newTheme = currentTheme === THEME_LIGHT ? THEME_DARK : THEME_LIGHT;
+                setTheme(newTheme);
+            }
+            
+            // Get preferred theme: check localStorage, then system preference, default light
+            function getPreferredTheme() {
+                // Check localStorage first
+                try {
+                    const savedTheme = localStorage.getItem(STORAGE_KEY);
+                    if (savedTheme === THEME_LIGHT || savedTheme === THEME_DARK) {
+                        return savedTheme;
+                    }
+                } catch (e) {
+                    // If localStorage error, ignore and fallback to system
+                }
+                
+                // Check system preference (prefers-color-scheme)
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return THEME_DARK;
+                }
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    return THEME_LIGHT;
+                }
+                
+                // Default to light theme
+                return THEME_LIGHT;
+            }
+            
+            // Initialize theme based on saved preference or system setting
+            function initTheme() {
+                const preferredTheme = getPreferredTheme();
+                setTheme(preferredTheme);
+            }
+            
+            // Set up event listeners for toggle interactions
+            function bindEvents() {
+                if (!checkbox) {
+                    console.warn('Checkbox element not found!');
+                    return;
+                }
+                
+                // Listen to checkbox change events (triggered by clicking the label or keyboard)
+                checkbox.addEventListener('change', function(e) {
+                    // When checkbox is toggled, update theme accordingly
+                    const isChecked = checkbox.checked;
+                    const newTheme = isChecked ? THEME_DARK : THEME_LIGHT;
+                    const currentTheme = getCurrentTheme();
+                    
+                    // Only update if theme actually changes
+                    if (newTheme !== currentTheme) {
+                        setTheme(newTheme);
+                    }
+                });
+                
+                // Optional: listen for system theme changes (if user hasn't set a preference)
+                // This ensures the UI adapts when OS theme changes, but only if no user preference stored.
+                // To avoid overriding user choice, we only apply system changes if localStorage is empty.
+                if (window.matchMedia) {
+                    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                    const lightModeQuery = window.matchMedia('(prefers-color-scheme: light)');
+                    
+                    const systemChangeHandler = function(e) {
+                        // Only auto-adapt if there's NO explicit user preference saved in localStorage
+                        try {
+                            const hasUserPreference = localStorage.getItem(STORAGE_KEY) !== null;
+                            if (!hasUserPreference) {
+                                const newSystemTheme = e.matches ? (e.media.includes('dark') ? THEME_DARK : THEME_LIGHT) : null;
+                                if (newSystemTheme && newSystemTheme !== getCurrentTheme()) {
+                                    setTheme(newSystemTheme);
+                                }
+                            }
+                        } catch (err) {
+                            // ignore
+                        }
+                    };
+                    
+                    // Listen for changes
+                    if (darkModeQuery.addEventListener) {
+                        darkModeQuery.addEventListener('change', systemChangeHandler);
+                        lightModeQuery.addEventListener('change', systemChangeHandler);
+                    } else if (darkModeQuery.addListener) {
+                        // Fallback for older Safari
+                        darkModeQuery.addListener(systemChangeHandler);
+                        lightModeQuery.addListener(systemChangeHandler);
+                    }
+                }
+            }
+            
+            // Additional enhancement: ensure that dynamically created elements or late changes still reflect theme
+            // Also force re-sync if any external script tries to modify data-theme manually
+            function watchForManualThemeChanges() {
+                // Use MutationObserver to detect if any script or devtools changes data-theme attribute
+                // and sync checkbox accordingly (maintains consistency)
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                            const currentTheme = htmlElement.getAttribute('data-theme');
+                            if (currentTheme && checkbox) {
+                                const shouldBeChecked = (currentTheme === THEME_DARK);
+                                if (checkbox.checked !== shouldBeChecked) {
+                                    checkbox.checked = shouldBeChecked;
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(htmlElement, { attributes: true });
+            }
+            
+            // Initialize theme and event binding after DOM is fully ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    initTheme();
+                    bindEvents();
+                    watchForManualThemeChanges();
+                });
+            } else {
+                initTheme();
+                bindEvents();
+                watchForManualThemeChanges();
+            }
+            
+            // Optional: Add a small visual enhancement to announce theme changes for screen readers
+            // This is not strictly required but improves accessibility
+            const announceThemeChange = function(theme) {
+                const announcement = document.createElement('div');
+                announcement.setAttribute('aria-live', 'polite');
+                announcement.setAttribute('role', 'status');
+                announcement.style.position = 'absolute';
+                announcement.style.width = '1px';
+                announcement.style.height = '1px';
+                announcement.style.padding = '0';
+                announcement.style.margin = '-1px';
+                announcement.style.overflow = 'hidden';
+                announcement.style.clip = 'rect(0,0,0,0)';
+                announcement.style.border = '0';
+                announcement.textContent = `Theme switched to ${theme} mode`;
+                document.body.appendChild(announcement);
+                setTimeout(() => {
+                    document.body.removeChild(announcement);
+                }, 1000);
+            };
+            
+            window.addEventListener('themeChanged', (e) => {
+                announceThemeChange(e.detail.theme);
+            });
+            
+            // Expose a small global API for debugging or external control if needed (optional)
+            window.__themeController = {
+                setTheme: setTheme,
+                getCurrentTheme: getCurrentTheme,
+                toggle: toggleTheme
+            };
+        })();
+    </script>
+</body>
+</html>

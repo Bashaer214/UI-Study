@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>UrbanCart | Modern E‑commerce Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: #f7fafc;
+            color: #0f172a;
+            line-height: 1.4;
+            padding: 2rem 1.5rem;
+        }
+
+        /* main container */
+        .shop-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* header & cart summary */
+        .store-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1rem;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e293b, #2c3e66);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .cart-widget {
+            background: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2edf2;
+        }
+
+        .cart-icon {
+            font-size: 1.5rem;
+            display: inline-block;
+        }
+
+        .cart-count-badge {
+            background: #e11d48;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            min-width: 32px;
+            text-align: center;
+            padding: 0.2rem 0.6rem;
+            border-radius: 40px;
+            line-height: 1;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .cart-label {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        /* filter bar - category buttons (JS powered now) */
+        .filter-section {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: center;
+            background: white;
+            padding: 1rem 1.2rem;
+            border-radius: 48px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef2f6;
+        }
+
+        .filter-title {
+            font-weight: 600;
+            color: #334155;
+            margin-right: 0.25rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #1e293b;
+            background: white;
+        }
+
+        .filter-btn.active {
+            background: #0f172a;
+            border-color: #0f172a;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef2f8;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.1);
+            border-color: #cbdff2;
+        }
+
+        .product-img {
+            background: #f1f5f9;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            border-bottom: 1px solid #eef2f8;
+        }
+
+        .product-info {
+            padding: 1.2rem 1.2rem 1rem;
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: #0f172a;
+        }
+
+        .product-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: #e11d48;
+            background: #ffe4e8;
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            margin-bottom: 0.75rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0.5rem 0;
+        }
+
+        .price-symbol {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .add-to-cart-btn {
+            background: #0f172a;
+            border: none;
+            width: 100%;
+            padding: 0.85rem 0;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .add-to-cart-btn.added {
+            background: #2b9348;
+        }
+
+        .add-to-cart-btn .btn-text-added {
+            display: none;
+        }
+
+        .add-to-cart-btn.added .btn-text-default {
+            display: none;
+        }
+
+        .add-to-cart-btn.added .btn-text-added {
+            display: inline;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 1rem;
+            }
+            .product-grid {
+                gap: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="shop-container">
+    <div class="store-header">
+        <div class="brand">🛍️ UrbanCart</div>
+        <div class="cart-widget">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-label">Cart</span>
+            <span class="cart-count-badge" id="cartCountDisplay">0</span>
+        </div>
+    </div>
+
+    <!-- FILTER SECTION (JavaScript powered) -->
+    <div class="filter-section">
+        <span class="filter-title">🔍 Filter by:</span>
+        <button class="filter-btn active" data-category="all">✨ All</button>
+        <button class="filter-btn" data-category="clothing">👕 Clothing</button>
+        <button class="filter-btn" data-category="accessories">🕶️ Accessories</button>
+        <button class="filter-btn" data-category="electronics">📱 Electronics</button>
+        <button class="filter-btn" data-category="home">🏠 Home & Living</button>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="product-grid" id="productGrid">
+        <!-- Product 1 - Clothing -->
+        <div class="product-card" data-category="clothing" data-product-id="1">
+            <div class="product-img">👕🧵</div>
+            <div class="product-info">
+                <span class="product-category">Clothing</span>
+                <div class="product-title">Minimalist Oversized Tee</div>
+                <div class="product-price"><span class="price-symbol">$</span>39.00</div>
+                <button class="add-to-cart-btn" data-id="1" data-name="Minimalist Oversized Tee" data-price="39.00">
+                    <span class="btn-text-default">➕ Add to cart</span>
+                    <span class="btn-text-added">✓ Added</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Product 2 - Accessories -->
+        <div class="product-card" data-category="accessories" data-product-id="2">
+            <div class="product-img">⌚✨</div>
+            <div class="product-info">
+                <span class="product-category">Accessories</span>
+                <div class="product-title">Apex Chronograph Watch</div>
+                <div class="product-price"><span class="price-symbol">$</span>129.00</div>
+                <button class="add-to-cart-btn" data-id="2" data-name="Apex Chronograph Watch" data-price="129.00">
+                    <span class="btn-text-default">➕ Add to cart</span>
+                    <span class="btn-text-added">✓ Added</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Product 3 - Electronics -->
+        <div class="product-card" data-category="electronics" data-product-id="3">
+            <div class="product-img">🎧🔊</div>
+            <div class="product-info">
+                <span class="product-category">Electronics</span>
+                <div class="product-title">NoiseX Pro Headphones</div>
+                <div class="product-price"><span class="price-symbol">$</span>89.99</div>
+                <button class="add-to-cart-btn" data-id="3" data-name="NoiseX Pro Headphones" data-price="89.99">
+                    <span class="btn-text-default">➕ Add to cart</span>
+                    <span class="btn-text-added">✓ Added</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Product 4 - Home -->
+        <div class="product-card" data-category="home" data-product-id="4">
+            <div class="product-img">🪴🏺</div>
+            <div class="product-info">
+                <span class="product-category">Home</span>
+                <div class="product-title">Nordic Ceramic Vase</div>
+                <div class="product-price"><span class="price-symbol">$</span>54.50</div>
+                <button class="add-to-cart-btn" data-id="4" data-name="Nordic Ceramic Vase" data-price="54.50">
+                    <span class="btn-text-default">➕ Add to cart</span>
+                    <span class="btn-text-added">✓ Added</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Product 5 - Clothing -->
+        <div class="product-card" data-category="clothing" data-product-id="5">
+            <div class="product-img">🧥👖</div>
+            <div class="product-info">
+                <span class="product-category">Clothing</span>
+                <div class="product-title">Vintage Denim Jacket</div>
+                <div class="product-price"><span class="price-symbol">$</span>89.00</div>
+                <button class="add-to-cart-btn" data-id="5" data-name="Vintage Denim Jacket" data-price="89.00">
+                    <span class="btn-text-default">➕ Add to cart</span>
+                    <span class="btn-text-added">✓ Added</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Product 6 - Accessories -->
+        <div class="product-card" data-category="accessories" data-product-id="6">
+            <div class="product-img">🕶️🌟</div>
+            <div class="product-info">
+                <span class="product-category">Accessories</span>
+                <div class="product-title">Aviator Polarized Sunglasses</div>
+                <div class="product-price"><span class="price-symbol">$</span>59.95</div>
+                <button class="add-to-cart-btn" data-id="6" data-name="Aviator Polarized Sunglasses" data-price="59.95">
+                    <span class="btn-text-default">➕ Add to cart</span>
+                    <span class="btn-text-added">✓ Added</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Product 7 - Electronics -->
+        <div class="product-card" data-category="electronics" data-product-id="7">
+            <div class="product-img">🔊🎵</div>
+            <div class="product-info">
+                <span class="product-category">Electronics</span>
+                <div class="product-title">Echo Smart Speaker</div>
+                <div class="product-price"><span class="price-symbol">$</span>79.99</div>
+                <button class="add-to-cart-btn" data-id="7" data-name="Echo Smart Speaker" data-price="79.99">
+                    <span class="btn-text-default">➕ Add to cart</span>
+                    <span class="btn-text-added">✓ Added</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Product 8 - Home -->
+        <div class="product-card" data-category="home" data-product-id="8">
+            <div class="product-img">💡🛋️</div>
+            <div class="product-info">
+                <span class="product-category">Home</span>
+                <div class="product-title">Aurora LED Floor Lamp</div>
+                <div class="product-price"><span class="price-symbol">$</span>119.00</div>
+                <button class="add-to-cart-btn" data-id="8" data-name="Aurora LED Floor Lamp" data-price="119.00">
+                    <span class="btn-text-default">➕ Add to cart</span>
+                    <span class="btn-text-added">✓ Added</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtle footer note -->
+    <div style="margin-top: 3rem; text-align: center; font-size: 0.75rem; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+        ✨ Interactive e‑commerce — Filter products, add to cart, cart count updates instantly.
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- STATE ----------
+        // cartItems: object where key = productId (number/string), value = quantity (number)
+        let cartItems = new Map(); // productId -> quantity
+
+        // DOM elements
+        const cartCountSpan = document.getElementById('cartCountDisplay');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const productCards = document.querySelectorAll('.product-card');
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+        // Helper: update cart UI (badge count + button states)
+        function updateCartUI() {
+            // Calculate total number of items (sum of quantities)
+            let totalItems = 0;
+            for (let qty of cartItems.values()) {
+                totalItems += qty;
+            }
+            if (cartCountSpan) {
+                cartCountSpan.textContent = totalItems;
+            }
+
+            // Update each product's button style based on whether item is in cart (quantity > 0)
+            addToCartButtons.forEach(btn => {
+                const productId = btn.getAttribute('data-id');
+                if (productId && cartItems.has(productId) && cartItems.get(productId) > 0) {
+                    btn.classList.add('added');
+                } else {
+                    btn.classList.remove('added');
+                }
+            });
+        }
+
+        // Add product to cart (increment quantity)
+        function addToCart(productId, productName, productPrice) {
+            if (!productId) return;
+            const currentQty = cartItems.get(productId) || 0;
+            cartItems.set(productId, currentQty + 1);
+            updateCartUI();
+            // Optional: subtle animation feedback (no alert, just visual)
+            const btn = document.querySelector(`.add-to-cart-btn[data-id="${productId}"]`);
+            if (btn && !btn.classList.contains('added')) {
+                btn.classList.add('added');
+            }
+        }
+
+        // Remove product from cart (decrement quantity, remove if zero) - not explicitly required but good for completeness
+        // Buttons can also support removing? spec only "add-to-cart functionality", but we keep ability to reduce via future? We'll not add remove now.
+        // However, we'll allow toggling: if user clicks "Added" button, it will remove? Not standard but better UX? Spec doesn't forbid but typical ecommerce: clicking again adds more.
+        // To keep expected behavior: Each click increments quantity. No decrement unless we implement extra. To be safe: just increment.
+
+        // ---------- CATEGORY FILTERING (JavaScript) ----------
+        function filterProducts(selectedCategory) {
+            productCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                if (selectedCategory === 'all' || cardCategory === selectedCategory) {
+                    card.style.display = 'flex'; // show as flex (original display)
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Handle filter button clicks and active class
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // Update active class on filter buttons
+                filterBtns.forEach(button => button.classList.remove('active'));
+                this.classList.add('active');
+
+                const category = this.getAttribute('data-category');
+                filterProducts(category);
+            });
+        });
+
+        // ---------- ADD TO CART EVENT HANDLERS ----------
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const productId = this.getAttribute('data-id');
+                const productName = this.getAttribute('data-name');
+                const productPrice = parseFloat(this.getAttribute('data-price'));
+                if (productId) {
+                    addToCart(productId, productName, productPrice);
+                }
+            });
+        });
+
+        // Initialize: ensure all products visible, cart is empty, UI matches
+        function init() {
+            // Set default filter: 'all' active and show all products
+            filterProducts('all');
+            // Make sure active class matches initial state (already 'active' on 'All' button via HTML class)
+            // But ensure sync if needed
+            const activeFilter = document.querySelector('.filter-btn.active');
+            if (!activeFilter || activeFilter.getAttribute('data-category') !== 'all') {
+                const allBtn = document.querySelector('.filter-btn[data-category="all"]');
+                if (allBtn) {
+                    filterBtns.forEach(btn => btn.classList.remove('active'));
+                    allBtn.classList.add('active');
+                }
+            }
+            // Clear any existing cart data
+            cartItems.clear();
+            updateCartUI();
+
+            // Edge: re-sync product buttons to "not added"
+            addToCartButtons.forEach(btn => {
+                btn.classList.remove('added');
+            });
+            cartCountSpan.textContent = '0';
+        }
+
+        // For demo purposes, we could store cart in localStorage? not needed. Just functional.
+        // Additional small improvement: we could add a notification dot but not required.
+
+        // Fix any floating point issues and ensure numeric price is not necessary for counting, only increment logic
+        // Also prevent duplicate event listeners if script reruns but we are fine.
+
+        // If product cards have data attributes that match, we also allow accessibility
+        init();
+
+        // Optional: if any user wants to see cart total count properly updated when multiple adds.
+        // also add micro interaction: no other JS needed.
+        // We also can add a smooth effect but keep design minimal.
+        // Ensure that dynamic cart count updates work with any number of clicks.
+        // For demonstration, each product increments quantity; there is no max.
+        // The "Added" state appears once product is in cart (quantity >=1) and remains even if quantity > 1.
+        // That's intuitive for visual feedback.
+
+        // We also handle the scenario where product cards might be re-rendered? Not needed.
+        // Additionally provide helper for reset? not needed.
+
+        // One more thing: since some product cards are hidden via filter, add to cart still works for hidden products (if they are in DOM).
+        // That's expected and fine.
+
+        // Edge case: For very large cart, performance fine.
+        // No external dependencies.
+        console.log('UrbanCart initialized — JS filtering & cart active');
+    })();
+</script>
+</body>
+</html>

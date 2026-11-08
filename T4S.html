@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App (Semantic Structure)</title>
+    <style>
+        /* ---------- GLOBAL RESET & BASE STYLES ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #d9e2ef 100%);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            margin: 0;
+        }
+
+        /* main container – elegant card style */
+        main {
+            max-width: 780px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(0px);
+        }
+
+        /* active quiz section */
+        section[aria-labelledby="quiz-heading"] {
+            padding: 2rem 2rem 2rem 2rem;
+        }
+
+        /* heading style */
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1E2A5E, #2A3F7E);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            border-left: 6px solid #3b82f6;
+            padding-left: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ---------- TIMER SECTION (elegant & prominent) ---------- */
+        div[aria-live="polite"] {
+            background: #1e293b;
+            color: #f8fafc;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            padding: 0.7rem 1.6rem;
+            border-radius: 60px;
+            margin-bottom: 1.8rem;
+            font-weight: 500;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(4px);
+        }
+
+        div[aria-live="polite"] span:first-child {
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            opacity: 0.9;
+        }
+
+        #timer-value {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: #0f172a;
+            padding: 0.2rem 0.6rem;
+            border-radius: 40px;
+            letter-spacing: 2px;
+            color: #facc15;
+            text-shadow: 0 0 2px #ffd966;
+            min-width: 85px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        /* article (question card) */
+        article {
+            background: #ffffff;
+            border-radius: 2rem;
+            padding: 0.25rem 0 0.75rem 0;
+        }
+
+        /* question text */
+        #question-text {
+            font-size: 1.65rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #0a2540;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px dashed #cbd5e1;
+            word-break: break-word;
+        }
+
+        /* answer options list – modern interactive design */
+        ul[aria-label="Answer choices"] {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        ul[aria-label="Answer choices"] li {
+            background: #f8fafc;
+            border-radius: 1.2rem;
+            transition: all 0.2s ease;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        ul[aria-label="Answer choices"] li:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            transform: translateX(6px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.15);
+        }
+
+        /* label styling to make entire option clickable + spacious */
+        ul[aria-label="Answer choices"] label {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            font-size: 1.08rem;
+            font-weight: 500;
+            color: #1e293b;
+            cursor: pointer;
+            width: 100%;
+            transition: color 0.2s;
+        }
+
+        /* custom radio styling for modern look */
+        input[type="radio"] {
+            appearance: none;
+            width: 1.3rem;
+            height: 1.3rem;
+            border: 2px solid #94a3b8;
+            border-radius: 50%;
+            margin: 0;
+            position: relative;
+            cursor: pointer;
+            transition: 0.1s linear;
+            background-color: white;
+        }
+
+        input[type="radio"]:checked {
+            border-color: #2563eb;
+            background-color: #2563eb;
+            box-shadow: inset 0 0 0 3px white;
+        }
+
+        input[type="radio"]:focus-visible {
+            outline: 2px solid #1e40af;
+            outline-offset: 2px;
+        }
+
+        /* next button styling – primary action */
+        #next-btn {
+            background: linear-gradient(100deg, #2563eb, #1e40af);
+            border: none;
+            width: 100%;
+            padding: 1rem 1.2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        #next-btn:hover {
+            background: linear-gradient(100deg, #1e40af, #1e3a8a);
+            transform: scale(0.98);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #next-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* final score section – hidden initially, revealed after completion */
+        section[aria-labelledby="score-heading"] {
+            background: #fefce8;
+            border-top: 5px solid #eab308;
+            padding: 2rem 2rem 2.2rem 2rem;
+            text-align: center;
+            margin-top: 0.5rem;
+            border-radius: 0 0 2rem 2rem;
+        }
+
+        #score-heading {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #b45309;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        section[aria-labelledby="score-heading"] p {
+            font-size: 1.35rem;
+            color: #2d3e50;
+            background: #fff7e0;
+            display: inline-block;
+            padding: 0.75rem 1.8rem;
+            border-radius: 60px;
+            margin-top: 0.75rem;
+        }
+
+        #final-score {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f3b2c;
+            background: #facc15;
+            padding: 0.1rem 0.6rem;
+            border-radius: 30px;
+            display: inline-block;
+            min-width: 60px;
+        }
+
+        #total-questions {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #92400e;
+        }
+
+        /* utility for hidden attribute graceful handling */
+        [hidden] {
+            display: none !important;
+        }
+
+        /* responsive design: mobile first improvements */
+        @media (max-width: 550px) {
+            main {
+                border-radius: 1.8rem;
+            }
+            section[aria-labelledby="quiz-heading"] {
+                padding: 1.5rem;
+            }
+            #question-text {
+                font-size: 1.35rem;
+            }
+            ul[aria-label="Answer choices"] label {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.95rem;
+            }
+            h1 {
+                font-size: 1.6rem;
+                margin-bottom: 1rem;
+            }
+            #timer-value {
+                font-size: 1.2rem;
+                min-width: 70px;
+            }
+            div[aria-live="polite"] {
+                padding: 0.4rem 1.2rem;
+                font-size: 0.95rem;
+            }
+            #next-btn {
+                padding: 0.8rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* micro-animation for question transition feel */
+        article {
+            animation: fadeSlide 0.3s ease-out;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* additional hover & focus improvement */
+        button:focus-visible, input:focus-visible {
+            outline: 2px solid #1e40af;
+            outline-offset: 2px;
+        }
+        
+        /* low time warning styling (dynamic class added by JS) */
+        .timer-critical {
+            background: #7f1a1a !important;
+            color: #ffdd99 !important;
+            transition: all 0.2s;
+        }
+        .timer-critical #timer-value {
+            background: #2d0a0a;
+            color: #ff8888;
+            text-shadow: 0 0 3px red;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <!-- Quiz Container: Shows active quiz question and timer -->
+        <section aria-labelledby="quiz-heading">
+            <h1 id="quiz-heading">Quiz Challenge</h1>
+
+            <!-- Timer Display -->
+            <div aria-live="polite" aria-label="Countdown timer" id="timer-container">
+                <span>⏱️ Time remaining:</span>
+                <span id="timer-value">00:00</span>
+            </div>
+
+            <!-- Current Question Card -->
+            <article>
+                <h2 id="question-text">Question text will appear here</h2>
+
+                <!-- Options List -->
+                <ul aria-label="Answer choices" id="options-list">
+                    <li><label><input type="radio" name="option" value="A"> Option A</label></li>
+                    <li><label><input type="radio" name="option" value="B"> Option B</label></li>
+                    <li><label><input type="radio" name="option" value="C"> Option C</label></li>
+                    <li><label><input type="radio" name="option" value="D"> Option D</label></li>
+                </ul>
+
+                <!-- Navigation Buttons -->
+                <div>
+                    <button type="button" id="next-btn">Next Question</button>
+                </div>
+            </article>
+        </section>
+
+        <!-- Final Score Display: Initially hidden, revealed after quiz completion -->
+        <section aria-labelledby="score-heading" hidden>
+            <h2 id="score-heading">🎉 Quiz Completed 🎉</h2>
+            <p>Your final score: <strong id="final-score">0</strong> out of <span id="total-questions">0</span></p>
+        </section>
+    </main>
+
+    <script>
+        (function() {
+            // ---------- QUIZ DATA ----------
+            const quizData = [
+                {
+                    question: "What does CSS stand for?",
+                    options: ["Cascading Style Sheets", "Computer Style Sheets", "Creative Style Sheets", "Colorful Style Sheets"],
+                    correct: "A"
+                },
+                {
+                    question: "Which HTML tag is used to define an unordered list?",
+                    options: ["<ul>", "<ol>", "<list>", "<li>"],
+                    correct: "A"
+                },
+                {
+                    question: "What does 'HTTP' stand for?",
+                    options: ["HyperText Transfer Protocol", "High Transfer Text Protocol", "Hyperlink Text Transfer Protocol", "HyperTransfer Text Protocol"],
+                    correct: "A"
+                },
+                {
+                    question: "Which property is used to change the background color in CSS?",
+                    options: ["bgcolor", "background-color", "color-background", "background"],
+                    correct: "B"
+                },
+                {
+                    question: "Inside which HTML element do we put the JavaScript?",
+                    options: ["<javascript>", "<js>", "<script>", "<scripting>"],
+                    correct: "C"
+                }
+            ];
+
+            // DOM elements
+            const questionEl = document.getElementById('question-text');
+            const optionsList = document.getElementById('options-list');
+            const nextBtn = document.getElementById('next-btn');
+            const timerSpan = document.getElementById('timer-value');
+            const timerContainer = document.getElementById('timer-container');
+            const finalScoreSection = document.querySelector('section[aria-labelledby="score-heading"]');
+            const finalScoreSpan = document.getElementById('final-score');
+            const totalQuestionsSpan = document.getElementById('total-questions');
+            const quizSection = document.querySelector('section[aria-labelledby="quiz-heading"]');
+            
+            // state variables
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let timerInterval = null;
+            let timeLeft = 15;          // seconds per question
+            let quizActive = true;
+            let isAnswered = false;      // prevents double answer / multiple moves
+            let selectedOptionValue = null;
+            let movingToNext = false;    // prevent race conditions on next button
+            
+            const totalQuestions = quizData.length;
+            totalQuestionsSpan.textContent = totalQuestions;
+            
+            // Helper: stop timer safely
+            function stopTimer() {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+            
+            // Format mm:ss
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            // Update timer UI and handle critical warning class
+            function updateTimerUI() {
+                timerSpan.textContent = formatTime(timeLeft);
+                // visual low-time effect: add class to container when <=5 sec
+                if (timeLeft <= 5 && quizActive && !isAnswered) {
+                    timerContainer.classList.add('timer-critical');
+                } else {
+                    timerContainer.classList.remove('timer-critical');
+                }
+            }
+            
+            // Start timer for current question
+            function startTimer() {
+                stopTimer();
+                if (!quizActive) return;
+                updateTimerUI();
+                
+                timerInterval = setInterval(() => {
+                    if (!quizActive) {
+                        stopTimer();
+                        return;
+                    }
+                    // if already answered or moving, don't count down
+                    if (isAnswered || movingToNext) {
+                        return;
+                    }
+                    
+                    if (timeLeft <= 1) {
+                        // TIME'S UP for this question
+                        stopTimer();
+                        if (!quizActive) return;
+                        // prevent multiple timeouts
+                        if (isAnswered) return;
+                        
+                        // Mark as answered with no valid selection (timeout)
+                        isAnswered = true;
+                        selectedOptionValue = null;
+                        // Disable all radio inputs to prevent further clicks
+                        disableRadios(true);
+                        
+                        // If last question, finish quiz; otherwise move after short pause
+                        if (currentQuestionIndex + 1 >= totalQuestions) {
+                            // Last question, time's up -> finish quiz (no score added)
+                            finishQuiz();
+                        } else {
+                            // Move to next question automatically
+                            movingToNext = true;
+                            setTimeout(() => {
+                                if (quizActive && !finalScoreSection.hasAttribute('hidden')) {
+                                    movingToNext = false;
+                                    return;
+                                }
+                                if (quizActive) {
+                                    moveToNextQuestion();
+                                }
+                                movingToNext = false;
+                            }, 600);
+                        }
+                    } else {
+                        timeLeft--;
+                        updateTimerUI();
+                    }
+                }, 1000);
+            }
+            
+            // Disable / Enable radio buttons
+            function disableRadios(disabled) {
+                const radios = document.querySelectorAll('input[name="option"]');
+                radios.forEach(radio => {
+                    radio.disabled = disabled;
+                });
+            }
+            
+            // Rebuild options list dynamically with fresh event listeners
+            function rebuildOptions(currentOptions, currentSelectedVal) {
+                // Clear existing list
+                optionsList.innerHTML = '';
+                const letters = ['A', 'B', 'C', 'D'];
+                for (let i = 0; i < currentOptions.length; i++) {
+                    const li = document.createElement('li');
+                    const label = document.createElement('label');
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = 'option';
+                    radio.value = letters[i];
+                    if (currentSelectedVal === letters[i]) {
+                        radio.checked = true;
+                    }
+                    // attach change handler directly
+                    radio.addEventListener('change', function(e) {
+                        if (isAnswered || movingToNext) {
+                            e.preventDefault();
+                            this.checked = false;
+                            return;
+                        }
+                        if (this.checked) {
+                            selectedOptionValue = this.value;
+                        }
+                    });
+                    label.appendChild(radio);
+                    label.appendChild(document.createTextNode(` ${currentOptions[i]}`));
+                    li.appendChild(label);
+                    optionsList.appendChild(li);
+                }
+            }
+            
+            // Load current question: reset UI, timer, selections
+            function loadQuestion() {
+                // reset flags for fresh question
+                isAnswered = false;
+                selectedOptionValue = null;
+                movingToNext = false;
+                
+                // Enable radios and reset any disabled state
+                disableRadios(false);
+                
+                const qData = quizData[currentQuestionIndex];
+                questionEl.textContent = qData.question;
+                
+                // Rebuild options to ensure clean state and fresh event listeners
+                rebuildOptions(qData.options, null);
+                
+                // Reset timer value
+                timeLeft = 15;
+                updateTimerUI();
+                // Remove critical class if present
+                timerContainer.classList.remove('timer-critical');
+                // Start fresh timer
+                startTimer();
+                
+                // Update button text based on if it's last question
+                if (currentQuestionIndex === totalQuestions - 1) {
+                    nextBtn.textContent = "Finish Quiz";
+                } else {
+                    nextBtn.textContent = "Next Question";
+                }
+            }
+            
+            // Move to next question or finish quiz based on current state & answer evaluation
+            function moveToNextQuestion() {
+                if (!quizActive) return false;
+                if (movingToNext) return false;
+                movingToNext = true;
+                
+                // Evaluate answer only if not already evaluated (isAnswered flag)
+                if (!isAnswered) {
+                    // If a valid option was selected, compare with correct answer
+                    if (selectedOptionValue !== null) {
+                        const currentQ = quizData[currentQuestionIndex];
+                        if (selectedOptionValue === currentQ.correct) {
+                            score++;
+                        }
+                    }
+                    // Mark as answered to prevent double evaluation
+                    isAnswered = true;
+                    disableRadios(true);
+                }
+                
+                // Stop timer since we're moving on
+                stopTimer();
+                
+                // Increment index
+                const nextIndex = currentQuestionIndex + 1;
+                if (nextIndex < totalQuestions) {
+                    currentQuestionIndex = nextIndex;
+                    loadQuestion();
+                    movingToNext = false;
+                    return true;
+                } else {
+                    // Quiz completed
+                    finishQuiz();
+                    movingToNext = false;
+                    return false;
+                }
+            }
+            
+            // Finish quiz: show final score and hide quiz section
+            function finishQuiz() {
+                if (!quizActive) return;
+                quizActive = false;
+                stopTimer();
+                
+                // Edge case: if finishQuiz called but last answer wasn't tallied (due to direct finish after timeout with no answer)
+                // But in moveToNextQuestion for last question we already evaluated. However if timeout on last question triggers finishQuiz directly:
+                // We need to ensure we didn't miss score increment for last question when there was a selected answer before timeout but timeout won.
+                // Let's check: if isAnswered is false and there's a selectedOptionValue on last question before finishing (e.g., user selected but timer expired before next)
+                if (!isAnswered && selectedOptionValue !== null) {
+                    const currentQ = quizData[currentQuestionIndex];
+                    if (selectedOptionValue === currentQ.correct) {
+                        score++;
+                    }
+                    isAnswered = true;
+                }
+                
+                // Display final score
+                finalScoreSpan.textContent = score;
+                quizSection.hidden = true;
+                finalScoreSection.hidden = false;
+            }
+            
+            // Next button click handler: either move to next question or finish quiz
+            function onNextClick() {
+                // Validation: quiz must be active, not already finished, and not currently moving
+                if (!quizActive) return;
+                if (movingToNext) return;
+                if (finalScoreSection && !finalScoreSection.hidden) return;
+                
+                // If current question already answered (by timer or previous action), just move forward
+                if (isAnswered) {
+                    // Already answered (maybe after timeout but button still there). Move safely.
+                    if (currentQuestionIndex + 1 < totalQuestions) {
+                        stopTimer();
+                        currentQuestionIndex++;
+                        loadQuestion();
+                    } else if (currentQuestionIndex + 1 === totalQuestions) {
+                        finishQuiz();
+                    } else {
+                        finishQuiz();
+                    }
+                    return;
+                }
+                
+                // Not answered yet: evaluate based on current selection
+                if (selectedOptionValue !== null) {
+                    // Answer was selected: record score, mark answered, then move
+                    const currentQ = quizData[currentQuestionIndex];
+                    if (selectedOptionValue === currentQ.correct) {
+                        score++;
+                    }
+                    isAnswered = true;
+                    disableRadios(true);
+                    stopTimer();
+                    
+                    if (currentQuestionIndex + 1 < totalQuestions) {
+                        currentQuestionIndex++;
+                        loadQuestion();
+                    } else {
+                        finishQuiz();
+                    }
+                } else {
+                    // No answer selected: treat as wrong, move to next or finish without incrementing score
+                    isAnswered = true;
+                    disableRadios(true);
+                    stopTimer();
+                    
+                    if (currentQuestionIndex + 1 < totalQuestions) {
+                        currentQuestionIndex++;
+                        loadQuestion();
+                    } else {
+                        finishQuiz();
+                    }
+                }
+            }
+            
+            // Manual reset / initialization function
+            function initQuiz() {
+                // Reset global state
+                currentQuestionIndex = 0;
+                score = 0;
+                quizActive = true;
+                isAnswered = false;
+                selectedOptionValue = null;
+                timeLeft = 15;
+                movingToNext = false;
+                
+                // Ensure UI sections correct
+                quizSection.hidden = false;
+                finalScoreSection.hidden = true;
+                timerContainer.classList.remove('timer-critical');
+                
+                // Stop any lingering timer
+                stopTimer();
+                
+                // Enable radios initially
+                disableRadios(false);
+                
+                // Load first question
+                loadQuestion();
+            }
+            
+            // Bind next button event (ensure no duplicate listeners)
+            nextBtn.removeEventListener('click', onNextClick);
+            nextBtn.addEventListener('click', onNextClick);
+            
+            // Start the quiz
+            initQuiz();
+        })();
+    </script>
+</body>
+</html>

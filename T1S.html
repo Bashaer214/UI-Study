@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Profile Card | Responsive Design</title>
+    <style>
+        /* ----- RESET & BASE STYLES (minimal, only for structure & responsiveness) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9edf2 100%);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        /* ----- PROFILE CARD (responsive, centered, with subtle elevation) ----- */
+        article[aria-label="User profile card"] {
+            max-width: 420px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-align: center;
+            padding: 1.8rem 1.8rem 2rem 1.8rem;
+        }
+
+        /* subtle hover effect (no interaction required, but adds polish) */
+        article[aria-label="User profile card"]:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ----- PROFILE IMAGE (figure + img) ----- */
+        figure {
+            margin: 0 0 1.2rem 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        img {
+            width: 128px;
+            height: 128px;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+            border: 3px solid white;
+            outline: 1px solid #e2e8f0;
+            transition: transform 0.2s;
+        }
+
+        img:hover {
+            transform: scale(1.02);
+        }
+
+        /* figcaption visually hidden but accessible (keeps semantic structure, no visual impact) */
+        figcaption {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* ----- HEADER (full name + tagline) ----- */
+        header {
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #4b5563;
+            background: #f1f5f9;
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: 30px;
+            backdrop-filter: blur(2px);
+        }
+
+        /* ----- BIO SECTION (short bio) ----- */
+        section {
+            margin: 1.25rem 0 1.75rem 0;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.2px;
+            border-bottom: 2px solid #e2e8f0;
+            display: inline-block;
+            padding-bottom: 0.2rem;
+        }
+
+        section p {
+            font-size: 0.95rem;
+            color: #334155;
+            line-height: 1.6;
+            margin-top: 0.6rem;
+            background: #fafcff;
+            padding: 0.5rem 0.2rem;
+            border-radius: 1rem;
+        }
+
+        /* ----- SOCIAL MEDIA NAVIGATION (three icons) ----- */
+        nav[aria-label="Social media profiles"] {
+            margin-top: 0.75rem;
+        }
+
+        nav h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5b6e8c;
+            margin-bottom: 1rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1.75rem;
+            flex-wrap: wrap;
+            padding: 0;
+        }
+
+        nav li {
+            display: inline-block;
+        }
+
+        /* social links styling — clean, accessible, no JS */
+        nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            color: #334155;
+            background: #f8fafc;
+            padding: 0.6rem 1rem;
+            border-radius: 2rem;
+            min-width: 80px;
+        }
+
+        /* SVG icon styling */
+        nav a svg {
+            width: 28px;
+            height: 28px;
+            transition: transform 0.2s, color 0.2s;
+            color: #1e293b;
+        }
+
+        nav a span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        /* Individual brand colors on hover (no JS, no interaction required, just visual feedback) */
+        nav a[href*="twitter"]:hover svg {
+            color: #1DA1F2;
+            transform: translateY(-2px);
+        }
+        nav a[href*="github"]:hover svg {
+            color: #181717;
+            transform: translateY(-2px);
+        }
+        nav a[href*="linkedin"]:hover svg {
+            color: #0A66C2;
+            transform: translateY(-2px);
+        }
+
+        nav a:hover {
+            background-color: #ffffff;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        nav a:hover span {
+            color: #0f172a;
+        }
+
+        /* ----- FULL RESPONSIVE BEHAVIOR (mobile-first adjustments) ----- */
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+            article[aria-label="User profile card"] {
+                padding: 1.5rem 1.2rem 1.8rem 1.2rem;
+                max-width: 95%;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            img {
+                width: 110px;
+                height: 110px;
+            }
+            nav ul {
+                gap: 0.9rem;
+            }
+            nav a {
+                padding: 0.4rem 0.8rem;
+                min-width: 70px;
+            }
+            nav a svg {
+                width: 24px;
+                height: 24px;
+            }
+            section p {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* extra small devices */
+        @media (max-width: 360px) {
+            nav ul {
+                gap: 0.6rem;
+            }
+            nav a {
+                padding: 0.3rem 0.6rem;
+                min-width: 60px;
+            }
+            nav a svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+
+        /* maintain readability on large screens but keep card centered */
+        @media (min-width: 768px) {
+            article[aria-label="User profile card"] {
+                max-width: 460px;
+            }
+        }
+
+        /* optional: subtle transition for all interactive elements */
+        a, svg, img {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main profile card container: semantic landmark with role region -->
+    <article aria-label="User profile card">
+        
+        <!-- Figure element groups the profile image with optional caption (if needed, though hidden visually for semantic grouping) -->
+        <figure>
+            <!-- Profile image: alt attribute describes the person's appearance -->
+            <img src="https://via.placeholder.com/160x160?text=Profile+Image" 
+                 alt="User profile headshot: smiling person in natural light"
+                 width="160" 
+                 height="160">
+            <!-- Figcaption can provide context; here it repeats the user role but is semantically associated -->
+            <figcaption>Profile portrait</figcaption>
+        </figure>
+
+        <!-- Header section for identity information -->
+        <header>
+            <h1>Alexandra Chen</h1>
+            <!-- Optional but semantic: role or tagline can be placed here -->
+            <p>Digital Storyteller & Creative Technologist</p>
+        </header>
+
+        <!-- Bio section: short descriptive paragraph -->
+        <section>
+            <h2>Biography</h2>
+            <p>Alexandra is a designer, writer, and open-source enthusiast based in Seattle. She believes in building accessible digital experiences and telling stories that connect people across cultures. When not coding, she hikes Pacific Northwest trails.</p>
+        </section>
+
+        <!-- Social links area: represented as navigation landmark -->
+        <nav aria-label="Social media profiles">
+            <h3>Connect with Alexandra</h3>
+            <ul>
+                <!-- Each list item contains a semantic anchor with a recognizable social media icon reference.
+                     Icons are represented as inline SVG (purely semantic, no external resources, no CSS).
+                     The SVG icons are standard social symbols with aria-hidden for screen readers
+                     because the link text provides accessible name. -->
+                <li>
+                    <a href="https://twitter.com/alexandrachen" aria-label="Twitter profile (opens external)">
+                        <!-- Twitter (X) icon: simple SVG shape representing bird -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M22.46 6C21.69 6.35 20.86 6.58 20 6.69C20.88 6.16 21.56 5.32 21.88 4.31C21.05 4.81 20.13 5.16 19.16 5.36C18.37 4.5 17.26 4 16 4C13.65 4 11.73 5.92 11.73 8.29C11.73 8.63 11.77 8.96 11.84 9.27C8.28 9.09 5.11 7.38 3 4.79C2.63 5.42 2.42 6.16 2.42 6.94C2.42 8.43 3.17 9.75 4.33 10.5C3.62 10.5 2.96 10.3 2.38 10C2.38 10 2.38 10 2.38 10.03C2.38 12.11 3.86 13.85 5.82 14.24C5.46 14.34 5.08 14.39 4.69 14.39C4.42 14.39 4.15 14.36 3.89 14.31C4.43 16 6 17.26 7.89 17.29C6.43 18.45 4.58 19.13 2.56 19.13C2.22 19.13 1.88 19.11 1.54 19.07C3.44 20.29 5.7 21 8.12 21C16 21 20.33 14.46 20.33 8.79C20.33 8.6 20.33 8.42 20.32 8.23C21.16 7.63 21.88 6.87 22.46 6Z" fill="currentColor"/>
+                        </svg>
+                        <span>Twitter</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/alexandrachen" aria-label="GitHub profile (opens external)">
+                        <!-- GitHub icon: simple octocat style -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 16.42 4.87 20.17 8.84 21.5C9.34 21.58 9.5 21.27 9.5 21C9.5 20.77 9.5 20.14 9.5 19.31C6.73 19.91 6.14 17.97 6.14 17.97C5.68 16.81 5.03 16.5 5.03 16.5C4.12 15.88 5.1 15.9 5.1 15.9C6.1 15.97 6.63 16.93 6.63 16.93C7.5 18.45 8.97 18 9.54 17.76C9.63 17.11 9.89 16.67 10.17 16.42C7.95 16.17 5.62 15.31 5.62 11.5C5.62 10.39 6 9.5 6.65 8.79C6.55 8.54 6.2 7.5 6.75 6.15C6.75 6.15 7.59 5.88 9.5 7.17C10.29 6.95 11.15 6.84 12 6.84C12.85 6.84 13.71 6.95 14.5 7.17C16.41 5.88 17.25 6.15 17.25 6.15C17.8 7.5 17.45 8.54 17.35 8.79C18 9.5 18.38 10.39 18.38 11.5C18.38 15.32 16.04 16.16 13.81 16.41C14.17 16.72 14.5 17.33 14.5 18.26C14.5 19.6 14.5 20.68 14.5 21C14.5 21.27 14.66 21.59 15.17 21.5C19.14 20.16 22 16.42 22 12C22 6.48 17.52 2 12 2Z" fill="currentColor"/>
+                        </svg>
+                        <span>GitHub</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://linkedin.com/in/alexandrachen" aria-label="LinkedIn profile (opens external)">
+                        <!-- LinkedIn icon: "in" rounded style -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM8 19H5V8H8V19ZM6.5 6.73C5.53 6.73 4.75 5.94 4.75 4.97C4.75 4 5.53 3.22 6.5 3.22C7.47 3.22 8.25 4 8.25 4.97C8.25 5.94 7.47 6.73 6.5 6.73ZM19 19H16V13.5C16 12.12 14.88 11 13.5 11C12.12 11 11 12.12 11 13.5V19H8V8H11V9.5C11.5 8.67 12.4 8 13.5 8C15.98 8 18 10.02 18 12.5V19Z" fill="currentColor"/>
+                        </svg>
+                        <span>LinkedIn</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </article>
+
+    <!-- No JavaScript functionality is required for this static profile card.
+         The task specifies "No interactions required" and "static responsive profile card".
+         Therefore, the provided HTML/CSS code remains unchanged, and no JavaScript is added. -->
+</body>
+</html>

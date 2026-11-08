@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Eclipse Toggle | Dark & Light Mode</title>
+  <style>
+    /* -------------------------------
+       GLOBAL RESET & BASE STYLES
+    ------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background-color 0.25s ease-in-out, 
+                  color 0.2s ease-in-out,
+                  border-color 0.2s ease,
+                  box-shadow 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      /* background & text will be dynamically controlled by JS, but we set fallbacks */
+      background-color: #f9fafb;
+      color: #111827;
+    }
+
+    /* main card container */
+    .card {
+      max-width: 700px;
+      width: 100%;
+      background: inherit;  /* inherits body background? Actually we want subtle distinction? 
+                               but we let mode control separate card bg? For better contrast,
+                               we'll set card background slightly different per mode via JS or CSS variables.
+                               To keep robust: Use a semi-transparent or solid approach? We'll define via CSS vars.
+                            */
+      border-radius: 2rem;
+      padding: 2rem 2rem 2.5rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(0px);
+      transition: all 0.25s;
+    }
+
+    /* using CSS custom properties (variables) for dynamic theming */
+    /* Light mode defaults (will be overridden by .dark-mode class on body) */
+    body {
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --btn-bg: #1e293b;
+      --btn-text: #f8fafc;
+      --btn-hover: #0f172a;
+      --accent-border: #e2e8f0;
+      --toggle-icon-filter: none;
+    }
+
+    /* Dark mode variables — applied when body has .dark-mode class */
+    body.dark-mode {
+      --bg-primary: #0a0c10;
+      --bg-card: #1e1f2c;
+      --text-primary: #edeef2;
+      --text-secondary: #a0aec0;
+      --btn-bg: #3b4b6e;
+      --btn-text: #f1f5f9;
+      --btn-hover: #5b6e9e;
+      --accent-border: #2d3748;
+      --toggle-icon-filter: brightness(0) invert(1);
+    }
+
+    /* apply variables to actual elements */
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--accent-border);
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* typography & spacing */
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, currentColor 0%, currentColor 70%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: var(--text-primary);
+    }
+
+    .description {
+      font-size: 1.1rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      border-left: 3px solid var(--btn-bg);
+      padding-left: 1rem;
+    }
+
+    /* demo content group */
+    .demo-text {
+      margin: 2rem 0 1.8rem 0;
+    }
+
+    .demo-card {
+      background-color: rgba(128, 128, 128, 0.05);
+      border-radius: 1.25rem;
+      padding: 1.2rem 1.5rem;
+      margin-top: 0.5rem;
+      border: 1px solid var(--accent-border);
+    }
+
+    .demo-card p {
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    .demo-card small {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    hr {
+      margin: 1.5rem 0;
+      border: none;
+      height: 1px;
+      background-color: var(--accent-border);
+    }
+
+    /* toggle button — dynamic styling using variables */
+    .mode-toggle-btn {
+      background-color: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      padding: 0.9rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 60px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      transition: transform 0.15s ease, background-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.2);
+      letter-spacing: 0.3px;
+    }
+
+    .mode-toggle-btn:hover {
+      background-color: var(--btn-hover);
+      transform: scale(1.02);
+      box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.3);
+    }
+
+    .mode-toggle-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* icon inside button (emoji + text) */
+    .btn-icon {
+      font-size: 1.3rem;
+      filter: var(--toggle-icon-filter);
+      transition: filter 0.2s;
+    }
+
+    /* interactive demo for text color changes */
+    .color-preview {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+
+    .badge {
+      background-color: var(--btn-bg);
+      color: var(--btn-text);
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      opacity: 0.9;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 500px) {
+      .card {
+        padding: 1.5rem;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
+      <h1>🌓 Chroma<span style="font-weight: 500;">Shift</span></h1>
+      <div class="badge" id="modeBadge">Light mode</div>
+    </div>
+    
+    <div class="description">
+      Seamless dark & light theme · background, text, and button colors transform instantly.
+    </div>
+
+    <!-- Toggle button: changes background, text color, button color -->
+    <button id="themeToggle" class="mode-toggle-btn" aria-label="Switch dark/light mode">
+      <span class="btn-icon" id="toggleIcon">☀️</span>
+      <span id="toggleLabel">Switch to Dark Mode</span>
+    </button>
+
+    <div class="demo-text">
+      <h3>✨ Live preview — text & surface colors</h3>
+      <div class="demo-card">
+        <p>🖌️ <strong>Adaptive palette</strong> — This paragraph inherits the primary text color. The card background, border, and even the subtle divider adapt dynamically.</p>
+        <p>🎨 <strong>Button color responds too:</strong> The toggle button above uses <code>var(--btn-bg)</code> and <code>var(--btn-text)</code>, changing from slate to deep indigo-blue in dark mode.</p>
+        <small>⚡ Every color variable updates instantly when you click — no page reload.</small>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="color-preview">
+      <span>🎯 Background: <span id="bgValuePreview" style="font-family: monospace;">#f8fafc</span></span>
+      <span>📄 Text: <span id="textValuePreview" style="font-family: monospace;">#0f172a</span></span>
+      <span>🔘 Button: <span id="btnValuePreview" style="font-family: monospace;">#1e293b</span></span>
+    </div>
+
+    <footer>
+      ⚡ Dark/Light mode toggle · pure CSS variables + JavaScript class toggling
+    </footer>
+  </main>
+
+  <script>
+    (function() {
+      // DOM elements
+      const body = document.body;
+      const toggleButton = document.getElementById('themeToggle');
+      const toggleLabelSpan = document.getElementById('toggleLabel');
+      const toggleIconSpan = document.getElementById('toggleIcon');
+      const modeBadge = document.getElementById('modeBadge');
+      
+      // Optional preview spans (just for extra demonstration)
+      const bgPreviewSpan = document.getElementById('bgValuePreview');
+      const textPreviewSpan = document.getElementById('textValuePreview');
+      const btnPreviewSpan = document.getElementById('btnValuePreview');
+
+      // Helper to get computed CSS variable value (for previews)
+      function getCssVariableValue(variableName, element = body) {
+        return getComputedStyle(element).getPropertyValue(variableName).trim();
+      }
+
+      // Update preview values to reflect current mode colors
+      function updateColorPreviews() {
+        if (bgPreviewSpan) {
+          let bgColor = getCssVariableValue('--bg-primary');
+          // fallback if somehow empty
+          if (!bgColor) bgColor = body.classList.contains('dark-mode') ? '#0a0c10' : '#f8fafc';
+          bgPreviewSpan.textContent = bgColor;
+        }
+        if (textPreviewSpan) {
+          let textColor = getCssVariableValue('--text-primary');
+          if (!textColor) textColor = body.classList.contains('dark-mode') ? '#edeef2' : '#0f172a';
+          textPreviewSpan.textContent = textColor;
+        }
+        if (btnPreviewSpan) {
+          let btnColor = getCssVariableValue('--btn-bg');
+          if (!btnColor) btnColor = body.classList.contains('dark-mode') ? '#3b4b6e' : '#1e293b';
+          btnPreviewSpan.textContent = btnColor;
+        }
+      }
+
+      // Function to set the theme (dark: true/false)
+      function setTheme(isDark) {
+        if (isDark) {
+          body.classList.add('dark-mode');
+          // update button text & icon for dark mode active (meaning currently in dark mode, button says switch to light)
+          toggleLabelSpan.textContent = 'Switch to Light Mode';
+          toggleIconSpan.textContent = '🌙';
+          if (modeBadge) modeBadge.textContent = 'Dark mode 🌙';
+        } else {
+          body.classList.remove('dark-mode');
+          toggleLabelSpan.textContent = 'Switch to Dark Mode';
+          toggleIconSpan.textContent = '☀️';
+          if (modeBadge) modeBadge.textContent = 'Light mode ☀️';
+        }
+        
+        // update dynamic color previews (background, text, button colors)
+        updateColorPreviews();
+        
+        // optional: store user preference in localStorage to persist across page reloads
+        try {
+          localStorage.setItem('theme-preference', isDark ? 'dark' : 'light');
+        } catch(e) { /* ignore private mode */ }
+      }
+
+      // Toggle between modes
+      function toggleTheme() {
+        const isCurrentlyDark = body.classList.contains('dark-mode');
+        setTheme(!isCurrentlyDark);
+      }
+
+      // Load saved preference from localStorage (if any)
+      function loadSavedTheme() {
+        let savedTheme = null;
+        try {
+          savedTheme = localStorage.getItem('theme-preference');
+        } catch(e) { /* silent fail */ }
+        
+        // Check system preference if no saved theme
+        if (savedTheme === 'dark') {
+          setTheme(true);
+        } else if (savedTheme === 'light') {
+          setTheme(false);
+        } else {
+          // fallback: use system color scheme preference (optional but improves UX)
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (prefersDark) {
+            setTheme(true);
+          } else {
+            setTheme(false);  // default light mode
+          }
+        }
+      }
+
+      // Listen for system color scheme changes (optional: update if user hasn't toggled manually)
+      // We'll add an optional listener, but we must avoid overriding explicit user choice.
+      // However we only apply system if there is NO stored preference at startup. After manual toggle,
+      // we don't auto-override. But for completeness we can add listener to update if no stored? 
+      // Simpler: don't add system dynamic after manual toggle to respect user decision. We'll only read initially.
+      
+      // Attach event listener to button
+      if (toggleButton) {
+        toggleButton.addEventListener('click', toggleTheme);
+      }
+      
+      // Initialize theme: load from storage or system preference
+      loadSavedTheme();
+      
+      // Additional: ensure that after any CSS variable change (due to class toggling)
+      // we also listen to mutations? Not needed because updateColorPreviews is called inside setTheme.
+      // However, if any other script changes class, we want preview to stay synced. 
+      // But we can also observe class changes on body for extra safety, but not mandatory.
+      // For robustness, we add a MutationObserver to sync previews if class changes externally (edge).
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'class') {
+            // Re-sync preview values and also button text/icons if for some reason they are desynced? 
+            // ensure button consistency: check if body has dark-mode, sync text and icon accordingly
+            const isDark = body.classList.contains('dark-mode');
+            // sync UI text (in case something external modified but not our setTheme, but still fix)
+            if (isDark) {
+              if (toggleLabelSpan && toggleLabelSpan.textContent !== 'Switch to Light Mode') toggleLabelSpan.textContent = 'Switch to Light Mode';
+              if (toggleIconSpan && toggleIconSpan.textContent !== '🌙') toggleIconSpan.textContent = '🌙';
+              if (modeBadge && modeBadge.textContent !== 'Dark mode 🌙') modeBadge.textContent = 'Dark mode 🌙';
+            } else {
+              if (toggleLabelSpan && toggleLabelSpan.textContent !== 'Switch to Dark Mode') toggleLabelSpan.textContent = 'Switch to Dark Mode';
+              if (toggleIconSpan && toggleIconSpan.textContent !== '☀️') toggleIconSpan.textContent = '☀️';
+              if (modeBadge && modeBadge.textContent !== 'Light mode ☀️') modeBadge.textContent = 'Light mode ☀️';
+            }
+            updateColorPreviews();
+          }
+        });
+      });
+      
+      observer.observe(body, { attributes: true });
+      
+      // initial preview call after load (double check)
+      updateColorPreviews();
+      
+      // small extra: if the css variable values get updated via devtools, preview still shows on toggle.
+      // It's fine.
+      console.log('Dark/Light mode ready — toggle changes background, text and button color dynamically.');
+    })();
+  </script>
+</body>
+</html>

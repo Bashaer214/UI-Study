@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>TaskFlow | Smart To-Do List</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #e9eef3 0%, #dbe2ea 100%);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* Main App Container – Glassmorphic card */
+    .todo-app {
+      max-width: 720px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(0px);
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 8px 18px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    /* Header area with modern flair */
+    .app-header {
+      background: #ffffff;
+      padding: 1.8rem 2rem 1rem 2rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .app-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1F2B3C, #2C3E50);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .app-header h1::before {
+      content: "✓✓";
+      font-size: 1.8rem;
+      background: none;
+      color: #2c7da0;
+      background-clip: unset;
+      -webkit-background-clip: unset;
+      font-weight: 600;
+    }
+
+    .sub {
+      color: #5a6874;
+      font-size: 0.85rem;
+      margin-top: 0.4rem;
+      font-weight: 450;
+      letter-spacing: 0.2px;
+    }
+
+    /* Add task section – interactive pure HTML/CSS, no JS */
+    .add-task-section {
+      padding: 1.5rem 2rem 1.2rem 2rem;
+      background: #fefefe;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      align-items: flex-end;
+    }
+
+    .task-field {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .task-field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #4b6a8b;
+      margin-bottom: 0.4rem;
+    }
+
+    .task-field input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1.4rem;
+      font-size: 1rem;
+      background: #fff;
+      transition: all 0.2s;
+      outline: none;
+      font-weight: 500;
+      color: #1e2a3a;
+    }
+
+    .task-field input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    /* Pure CSS “add” button – fully functional via form + hidden magic */
+    .add-btn {
+      background: #1e293b;
+      border: none;
+      padding: 0.9rem 1.8rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .add-btn:hover {
+      background: #0f172a;
+      transform: scale(0.98);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Task list container */
+    .tasks-container {
+      padding: 1rem 2rem 2rem 2rem;
+      background: #ffffff;
+    }
+
+    .tasks-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .tasks-header h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #1f2e3a;
+      letter-spacing: -0.2px;
+    }
+
+    .task-stats {
+      font-size: 0.75rem;
+      background: #eef2f8;
+      padding: 0.25rem 0.75rem;
+      border-radius: 30px;
+      color: #2c5a7a;
+      font-weight: 500;
+    }
+
+    /* task list – pure HTML/CSS interactive via checkboxes and buttons */
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* each task row */
+    .task-item {
+      background: #ffffff;
+      border: 1px solid #eef2f8;
+      border-radius: 1.5rem;
+      transition: all 0.2s;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+
+    .task-item:hover {
+      border-color: #cbdde9;
+      background: #fefefe;
+      box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* inner flex row */
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.2rem 0.9rem 1.2rem;
+    }
+
+    /* custom checkbox area — marks complete */
+    .task-check {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .task-check input {
+      width: 1.4rem;
+      height: 1.4rem;
+      cursor: pointer;
+      accent-color: #2c7da0;
+      margin: 0;
+      transition: 0.1s;
+    }
+
+    /* task text */
+    .task-text {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #1a2c3e;
+      word-break: break-word;
+      padding-right: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    /* strike through when checkbox is checked */
+    .task-check input:checked ~ .task-text {
+      text-decoration: line-through;
+      color: #8ba0ae;
+      font-weight: 450;
+    }
+
+    .delete-btn-wrapper {
+      display: flex;
+      align-items: center;
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 0.4rem 0.7rem;
+      border-radius: 2rem;
+      color: #a0b8cc;
+      transition: all 0.2s;
+      font-weight: 500;
+      line-height: 1;
+      font-family: monospace;
+    }
+
+    .delete-btn:hover {
+      background: #fee2e2;
+      color: #dc2626;
+      transform: scale(0.95);
+    }
+
+    .demo-note {
+      background: #f8fafc;
+      border-radius: 1.5rem;
+      padding: 1.2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #6c86a3;
+      border: 1px dashed #cbdde9;
+      margin-top: 0.5rem;
+    }
+
+    hr {
+      margin: 1rem 0 0.5rem;
+      border: none;
+      border-top: 1px solid #eef2f8;
+    }
+
+    /* Responsiveness */
+    @media (max-width: 550px) {
+      .todo-app {
+        border-radius: 1.8rem;
+      }
+      .app-header, .add-task-section, .tasks-container {
+        padding-left: 1.2rem;
+        padding-right: 1.2rem;
+      }
+      .input-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .add-btn {
+        justify-content: center;
+      }
+      .task-row {
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+      .task-text {
+        min-width: 70%;
+      }
+    }
+
+    /* additional style to simulate real dynamic behavior appearance */
+    .task-check input:checked ~ .task-text {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+
+    button, .add-btn {
+      user-select: none;
+    }
+
+    /* subtle empty state message */
+    .empty-message {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: #fafcff;
+      border-radius: 2rem;
+      color: #8ba0ae;
+      font-size: 0.9rem;
+      border: 1px dashed #dce5ec;
+    }
+  </style>
+</head>
+<body>
+<div class="todo-app">
+  <div class="app-header">
+    <h1>TaskFlow</h1>
+    <div class="sub">Organize, prioritize, achieve — zero clutter</div>
+  </div>
+
+  <!-- add task section with functional JS -->
+  <div class="add-task-section">
+    <div class="input-group">
+      <div class="task-field">
+        <label for="newTaskInput">✍️ New task</label>
+        <input type="text" id="newTaskInput" placeholder="e.g., Finish design report" autocomplete="off">
+      </div>
+      <button class="add-btn" id="addTaskBtn" type="button" aria-label="Add task">+ Add task</button>
+    </div>
+    <div class="demo-note" style="margin-top: 0.9rem; font-size: 0.7rem; background: transparent; padding: 0.4rem 0 0 0; border: none; color:#5c7a99;">
+      ⚡ Fully interactive: add, complete via checkbox, delete — all dynamic
+    </div>
+  </div>
+
+  <!-- tasks container: list of tasks will be dynamically managed -->
+  <div class="tasks-container">
+    <div class="tasks-header">
+      <h2>📋 Your tasks</h2>
+      <span class="task-stats" id="taskStats">0 active · 0 completed</span>
+    </div>
+
+    <ul class="task-list" id="taskList">
+      <!-- initial sample tasks (will be populated via JS to maintain consistency) -->
+    </ul>
+    <hr>
+    <div style="font-size: 0.7rem; text-align: center; color: #869bac; margin-top: 1rem;">
+      ✅ Checkbox toggles completion · Delete removes task · Add creates new tasks <br>
+      <span style="opacity: 0.7;">✨ Fully functional dynamic to-do list ✨</span>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript: full dynamic behavior for add, delete, mark complete, stats update -->
+<script>
+  (function() {
+    // ---------- DOM elements ----------
+    const taskListEl = document.getElementById('taskList');
+    const newTaskInput = document.getElementById('newTaskInput');
+    const addBtn = document.getElementById('addTaskBtn');
+    const taskStatsSpan = document.getElementById('taskStats');
+
+    // ---------- Helper: update stats (active & completed counts) ----------
+    function updateStats() {
+      if (!taskListEl) return;
+      const tasks = document.querySelectorAll('#taskList .task-item');
+      let completed = 0;
+      let active = 0;
+      tasks.forEach(task => {
+        const checkbox = task.querySelector('.complete-checkbox');
+        if (checkbox && checkbox.checked) {
+          completed++;
+        } else {
+          active++;
+        }
+      });
+      if (taskStatsSpan) {
+        taskStatsSpan.innerText = `${active} active · ${completed} completed`;
+      }
+    }
+
+    // ---------- Helper: create DOM structure for a single task ----------
+    // taskText: string, isCompleted: boolean
+    function createTaskItem(taskText, isCompleted = false) {
+      const li = document.createElement('li');
+      li.className = 'task-item';
+
+      const taskRow = document.createElement('div');
+      taskRow.className = 'task-row';
+
+      // checkbox container
+      const checkLabel = document.createElement('label');
+      checkLabel.className = 'task-check';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'complete-checkbox';
+      checkbox.checked = isCompleted;
+      checkLabel.appendChild(checkbox);
+
+      // task text span
+      const textSpan = document.createElement('span');
+      textSpan.className = 'task-text';
+      textSpan.innerText = taskText;
+
+      // delete button wrapper
+      const delWrapper = document.createElement('div');
+      delWrapper.className = 'delete-btn-wrapper';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.setAttribute('aria-label', 'Delete task');
+      delBtn.innerHTML = '🗑️';
+      delWrapper.appendChild(delBtn);
+
+      // assemble row
+      taskRow.appendChild(checkLabel);
+      taskRow.appendChild(textSpan);
+      taskRow.appendChild(delWrapper);
+      li.appendChild(taskRow);
+
+      // ----- event: toggle completion -> update stats and CSS line-through already handled by CSS, but we need to update stats
+      checkbox.addEventListener('change', function(e) {
+        // stats update only - styling is automatic via CSS sibling selector
+        updateStats();
+      });
+
+      // ----- event: delete task
+      delBtn.addEventListener('click', function(e) {
+        li.remove();
+        updateStats();
+        // Optional: show empty friendly message if no tasks left
+        checkAndRenderEmptyMessage();
+      });
+
+      return li;
+    }
+
+    // Show/hide empty placeholder message when task list is empty
+    function checkAndRenderEmptyMessage() {
+      if (!taskListEl) return;
+      const existingEmptyMsg = document.getElementById('emptyTaskMessage');
+      const tasksCount = document.querySelectorAll('#taskList .task-item').length;
+      if (tasksCount === 0) {
+        if (!existingEmptyMsg) {
+          const emptyLi = document.createElement('li');
+          emptyLi.id = 'emptyTaskMessage';
+          emptyLi.className = 'empty-message';
+          emptyLi.style.listStyle = 'none';
+          emptyLi.style.padding = '2rem 1rem';
+          emptyLi.style.textAlign = 'center';
+          emptyLi.innerText = '✨ No tasks yet. Add your first task above! ✨';
+          taskListEl.appendChild(emptyLi);
+        }
+      } else {
+        if (existingEmptyMsg) {
+          existingEmptyMsg.remove();
+        }
+      }
+    }
+
+    // ---------- Add new task logic ----------
+    function addNewTask() {
+      if (!newTaskInput) return;
+      let taskTitle = newTaskInput.value.trim();
+      if (taskTitle === "") {
+        // subtle feedback but no alert spam: highlight input briefly
+        newTaskInput.style.borderColor = "#f97316";
+        newTaskInput.style.boxShadow = "0 0 0 3px rgba(249,115,22,0.2)";
+        setTimeout(() => {
+          newTaskInput.style.borderColor = "#e2e8f0";
+          newTaskInput.style.boxShadow = "none";
+        }, 800);
+        return;
+      }
+
+      // Remove empty placeholder message if present before adding
+      const emptyMsg = document.getElementById('emptyTaskMessage');
+      if (emptyMsg) emptyMsg.remove();
+
+      // Create new task item (default not completed)
+      const newTaskItem = createTaskItem(taskTitle, false);
+      taskListEl.appendChild(newTaskItem);
+      
+      // Clear input field
+      newTaskInput.value = "";
+      
+      // update stats (active count increases)
+      updateStats();
+      
+      // Scroll smoothly to the new task
+      newTaskItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+      // brief success animation effect
+      newTaskItem.style.transform = "scale(0.98)";
+      setTimeout(() => {
+        if (newTaskItem) newTaskItem.style.transform = "";
+      }, 150);
+    }
+
+    // ---------- Load initial demo tasks (preserve original design but dynamic) ----------
+    function initializeTasks() {
+      if (!taskListEl) return;
+      // clear any placeholder content
+      taskListEl.innerHTML = '';
+      
+      // initial set: 3 tasks matching the spirit of original design, but now fully manageable
+      const defaultTasks = [
+        { text: "Review UX research drafts", completed: false },
+        { text: "Update team weekly sync", completed: true },
+        { text: "Prepare Q2 roadmap presentation", completed: false }
+      ];
+      
+      defaultTasks.forEach(task => {
+        const taskItem = createTaskItem(task.text, task.completed);
+        taskListEl.appendChild(taskItem);
+      });
+      
+      updateStats();
+      checkAndRenderEmptyMessage();
+    }
+
+    // ----- Event listener for add button -----
+    if (addBtn) {
+      addBtn.addEventListener('click', addNewTask);
+    }
+    
+    // Allow pressing Enter in input field to add task
+    if (newTaskInput) {
+      newTaskInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addNewTask();
+        }
+      });
+    }
+    
+    // ----- Start application: populate initial tasks and bind any dynamic listeners for existing controls (if any)-----
+    initializeTasks();
+    
+    // Also for any future dynamically added tasks, events are attached during creation.
+    // Additionally, we also ensure that the stat updates happen on any possible existing checkbox changes.
+    // Since we create everything with createTaskItem, event listeners are embedded. However, we also have to handle 
+    // the unlikely case that some tasks were statically present? But we replaced innerHTML with dynamic generation.
+    // For completeness: the initial load via initializeTasks ensures all tasks have proper listeners.
+    // Also there might be "mark complete" from css but stats need to be updated when checkbox toggles.
+    // The updateStats is already attached to each checkbox change event inside createTaskItem.
+    
+    // final: delegate extra safety for any checkbox that might be added via external? not needed, but fine.
+    // Also add window load re-check for empty state (just in case)
+    window.addEventListener('load', function() {
+      updateStats();
+      checkAndRenderEmptyMessage();
+    });
+  })();
+</script>
+</body>
+</html>

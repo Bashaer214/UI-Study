@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark/Light Mode Toggle</title>
+    <style>
+        /* ---------- CSS RESET & BASE STYLES ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body {
+            font-family: system-ui, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            margin: 0;
+        }
+
+        /* main container acts as a card / content wrapper */
+        main {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 32px;
+            padding: 2rem 2rem 2.5rem 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* header layout: title and button side by side on larger screens */
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid currentColor;
+            opacity: 0.9;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin: 0;
+        }
+
+        /* TOGGLE BUTTON — elegant & dynamic */
+        button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: 60px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        /* section spacing */
+        section {
+            margin-top: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -0.3px;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+        }
+
+        ul {
+            margin: 1.2rem 0 0.5rem 1.8rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        /* ========== LIGHT MODE (default) ========== */
+        /* body background: soft neutral light */
+        body {
+            background-color: #eef2f5;
+        }
+
+        /* main card — light mode appearance */
+        main {
+            background-color: #ffffff;
+            color: #1e2a3e;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* header border uses current text color for elegance */
+        header {
+            border-bottom-color: #cbd5e1;
+        }
+
+        /* light mode button style */
+        button {
+            background-color: #1e2a3e;
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        button:hover {
+            background-color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+        }
+
+        /* link / accent for lists (optional but clean) */
+        li {
+            color: inherit;
+        }
+
+        /* ========== DARK MODE STYLES ========== */
+        /* when body has .dark-mode class, all colors invert dynamically */
+        body.dark-mode {
+            background-color: #0a0c10;
+        }
+
+        body.dark-mode main {
+            background-color: #11161f;
+            color: #eef2ff;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode header {
+            border-bottom-color: #2d3a4b;
+        }
+
+        /* dark mode button style: light button on dark background */
+        body.dark-mode button {
+            background-color: #eef2ff;
+            color: #0f172a;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode button:hover {
+            background-color: #ffffff;
+            color: #020617;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* optional: adjust list markers for dark mode consistency */
+        body.dark-mode ul li::marker {
+            color: #94a3b8;
+        }
+
+        /* responsive adjustments */
+        @media (max-width: 550px) {
+            main {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            button {
+                padding: 0.5rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            h2 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* focus outline for accessibility */
+        button:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 3px;
+        }
+
+        /* smooth transition for all thematic elements */
+        body, main, button, header, p, h1, h2, li {
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main content container -->
+    <main>
+        <!-- Header section with mode toggle control -->
+        <header>
+            <h1>Dark / Light Mode Demo</h1>
+            <!-- Toggle button for dark/light mode -->
+            <button type="button" aria-label="Switch between dark and light mode" id="modeToggleBtn">
+                Toggle Mode
+            </button>
+        </header>
+
+        <!-- Content section demonstrating text and background colors -->
+        <section>
+            <h2>Sample Content</h2>
+            <p>This paragraph will change text color when the mode is toggled.</p>
+            <p>Click the button above to switch between dark mode and light mode.</p>
+            <ul>
+                <li>Background color changes dynamically</li>
+                <li>Text color changes dynamically</li>
+                <li>Button color changes dynamically</li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- 
+        ============================================================
+        PURE JAVASCRIPT IMPLEMENTATION (NO JQUERY, CLEAN VANILLA JS)
+        The task requires JavaScript functionality to toggle dark/light mode.
+        This script dynamically toggles the 'dark-mode' class on the body element,
+        changes the button text based on current mode, and persists the user's
+        preference using localStorage for a seamless experience across page reloads.
+        No existing HTML structure is modified; only the required JS functionality is added.
+    -->
+    <script>
+        (function() {
+            "use strict";
+
+            // Get the toggle button element by its ID (exists in the original HTML)
+            const toggleButton = document.getElementById('modeToggleBtn');
+            
+            // Ensure the button exists before proceeding (graceful fail-safe)
+            if (!toggleButton) {
+                console.warn('Toggle button with id "modeToggleBtn" not found.');
+                return;
+            }
+
+            // Helper function to set the mode based on a boolean flag
+            // true = dark mode, false = light mode
+            function setMode(isDarkMode) {
+                const bodyElement = document.body;
+                if (isDarkMode) {
+                    // Add dark-mode class to body
+                    bodyElement.classList.add('dark-mode');
+                    // Update button text to indicate switching to light mode (clear for user)
+                    toggleButton.textContent = 'Light Mode';
+                    // Store preference in localStorage
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    // Remove dark-mode class from body
+                    bodyElement.classList.remove('dark-mode');
+                    // Update button text to indicate switching to dark mode
+                    toggleButton.textContent = 'Dark Mode';
+                    // Store preference in localStorage
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+
+            // Function to toggle between dark and light modes
+            function toggleMode() {
+                const isCurrentlyDark = document.body.classList.contains('dark-mode');
+                // If currently dark, switch to light; otherwise switch to dark
+                setMode(!isCurrentlyDark);
+            }
+
+            // Function to initialize the theme based on localStorage or system preference
+            function initializeTheme() {
+                // Check if there's a saved preference in localStorage
+                const savedTheme = localStorage.getItem('theme');
+                
+                if (savedTheme === 'dark') {
+                    // Apply dark mode if saved preference is dark
+                    setMode(true);
+                } else if (savedTheme === 'light') {
+                    // Apply light mode if saved preference is light
+                    setMode(false);
+                } else {
+                    // If no saved preference, check system preference (prefers-color-scheme)
+                    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if (prefersDarkMode) {
+                        setMode(true);
+                    } else {
+                        setMode(false);
+                    }
+                }
+            }
+
+            // Add click event listener to the toggle button
+            toggleButton.addEventListener('click', toggleMode);
+            
+            // Initialize the theme when the page loads
+            initializeTheme();
+
+            // Optional: Listen for system theme changes (e.g., if user changes OS preference while page is open)
+            // This ensures the webpage adapts dynamically without a reload if the system preference changes.
+            // This enhances user experience and follows modern best practices.
+            const systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Define a handler for system preference changes, but only if the user hasn't manually overridden
+            function handleSystemThemeChange(e) {
+                // Only apply system preference if there's NO explicit user preference stored in localStorage
+                // This respects the user's manual choice while still adapting if they haven't set a preference.
+                const userSavedTheme = localStorage.getItem('theme');
+                if (userSavedTheme === null) {
+                    // No manual override: follow system preference
+                    if (e.matches) {
+                        setMode(true);
+                    } else {
+                        setMode(false);
+                    }
+                }
+            }
+            
+            // Add listener for system theme changes (modern browsers)
+            if (systemThemeMediaQuery.addEventListener) {
+                systemThemeMediaQuery.addEventListener('change', handleSystemThemeChange);
+            } else if (systemThemeMediaQuery.addListener) {
+                // Fallback for older Safari versions (deprecated but safe)
+                systemThemeMediaQuery.addListener(handleSystemThemeChange);
+            }
+        })();
+    </script>
+</body>
+</html>

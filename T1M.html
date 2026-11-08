@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Profile Card | Responsive Design</title>
+    <style>
+        /* -------------------------------
+           RESET & BASE STYLES
+        ------------------------------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #f4f7fc 0%, #e9eef4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            margin: 0;
+        }
+
+        /* -------------------------------
+           CARD CONTAINER
+           fully responsive, centered, with smooth shadow
+        ------------------------------- */
+        .profile-card {
+            max-width: 380px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-align: center;
+        }
+
+        /* subtle lift on hover (no JS, just visual delight) */
+        .profile-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 30px 50px -15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* -------------------------------
+           PROFILE IMAGE SECTION
+           round, centered, modern border accent
+        ------------------------------- */
+        .profile-image-wrapper {
+            padding: 2rem 2rem 0.75rem 2rem;
+            background: #ffffff;
+        }
+
+        .profile-img {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 12px 22px -10px rgba(0, 0, 0, 0.2);
+            border: 4px solid white;
+            outline: 2px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        /* optional subtle glow on hover (no js) */
+        .profile-card:hover .profile-img {
+            outline-color: #b9c8ff;
+            border-color: #f8fafc;
+        }
+
+        /* -------------------------------
+           TEXT CONTENT
+           full name + short bio
+        ------------------------------- */
+        .card-info {
+            padding: 0 1.8rem 1rem 1.8rem;
+        }
+
+        .full-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #1e293b;
+            margin-bottom: 0.6rem;
+            line-height: 1.2;
+        }
+
+        .short-bio {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #475569;
+            background: #f8fafc;
+            padding: 0.75rem 1rem;
+            border-radius: 1.25rem;
+            margin: 0.5rem 0 0.75rem 0;
+            font-weight: 450;
+            transition: background 0.2s;
+        }
+
+        /* -------------------------------
+           SOCIAL ICONS SECTION
+           three clickable icons (no JS, just visual links)
+           fully responsive, flex layout
+        ------------------------------- */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.8rem;
+            padding: 0.75rem 1.5rem 2rem 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* social icon links - clean, accessible, no js needed */
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            transition: all 0.25s ease-in-out;
+            text-decoration: none;
+            color: #334155;
+            /* we set no href javascript, but for demonstration use '#' as placeholder
+               (the requirement: no interactions, just styling; however placeholder links are fine) */
+        }
+
+        /* SVG icon styling - crisp and modern */
+        .social-icon svg {
+            width: 26px;
+            height: 26px;
+            fill: currentColor;
+            transition: transform 0.2s;
+        }
+
+        /* individual hover effects - purely visual (no JS), enhances UX */
+        .social-icon:hover {
+            transform: translateY(-4px);
+        }
+
+        /* brand-specific hover colors */
+        .social-icon:hover {
+            background-color: #eef2ff;
+        }
+
+        /* twitter / X specific hover */
+        .social-icon.twitter:hover {
+            background-color: #e8f0fe;
+            color: #1DA1F2;
+        }
+
+        /* instagram gradient-like feel */
+        .social-icon.instagram:hover {
+            color: #d62976;
+            background: linear-gradient(135deg, #fdf4f8, #fee2f0);
+        }
+
+        /* github hover */
+        .social-icon.github:hover {
+            background-color: #1e293b;
+            color: #ffffff;
+        }
+
+        /* make sure icons keep original color transition smooth */
+        .social-icon {
+            transition: transform 0.2s, background-color 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+
+        /* subtle shadow on icons */
+        .social-icon {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        /* optional focus ring for accessibility (keyboard navigation) */
+        .social-icon:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 3px;
+            transform: scale(0.98);
+        }
+
+        /* -------------------------------
+           RESPONSIVE BEHAVIOR
+           For very small devices (max-width: 450px)
+           reduce padding and icon sizes slightly
+        ------------------------------- */
+        @media (max-width: 480px) {
+            .profile-card {
+                max-width: 340px;
+            }
+
+            .profile-img {
+                width: 110px;
+                height: 110px;
+            }
+
+            .full-name {
+                font-size: 1.5rem;
+            }
+
+            .short-bio {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.9rem;
+            }
+
+            .social-links {
+                gap: 1.2rem;
+                padding: 0.5rem 1rem 1.8rem 1rem;
+            }
+
+            .social-icon {
+                width: 46px;
+                height: 46px;
+            }
+
+            .social-icon svg {
+                width: 22px;
+                height: 22px;
+            }
+        }
+
+        /* for very narrow screens like flip phones */
+        @media (max-width: 360px) {
+            .profile-card {
+                max-width: 300px;
+            }
+
+            .card-info {
+                padding: 0 1rem 0.8rem 1rem;
+            }
+
+            .social-links {
+                gap: 1rem;
+            }
+        }
+
+        /* optional high contrast & reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            .profile-card,
+            .profile-card:hover,
+            .social-icon,
+            .social-icon:hover {
+                transition: none;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+        STATIC RESPONSIVE PROFILE CARD
+        Contains: profile image, full name, short bio, three social media icons.
+        No JavaScript used — only HTML and CSS.
+        Icons are vector-based (SVG) for crisp rendering on any screen.
+        The social links are non-interactive placeholder links (href="#") 
+        as required: no actual JS interactions, just styling and structure.
+    -->
+    <div class="profile-card" role="region" aria-label="User profile card">
+        
+        <!-- Profile image section -->
+        <div class="profile-image-wrapper">
+            <img class="profile-img" 
+                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='50' fill='url(%23grad)'/%3E%3Ccircle cx='50' cy='38' r='16' fill='%23fef9c3'/%3E%3Cpath d='M30 68 Q50 80 70 68' stroke='%23fde047' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"
+                 alt="Profile avatar: stylized illustration with gradient background and smile"
+                 >
+        </div>
+
+        <!-- Full name & short bio -->
+        <div class="card-info">
+            <h1 class="full-name">Alexandra Chen</h1>
+            <div class="short-bio">
+                ✨ Creative front-end architect & design enthusiast. 
+                Building accessible, pixel-perfect web experiences with heart.
+            </div>
+        </div>
+
+        <!-- Three social media icons (no JS, pure static structure) -->
+        <div class="social-links">
+            <!-- Twitter (X) icon -->
+            <a href="#" class="social-icon twitter" aria-label="Twitter profile (static placeholder)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-hidden="true">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+            </a>
+            
+            <!-- Instagram icon -->
+            <a href="#" class="social-icon instagram" aria-label="Instagram profile (static placeholder)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-hidden="true">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.31.975.975 1.248 2.242 1.31 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.31 3.608-.975.975-2.242 1.248-3.608 1.31-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.31-.975-.975-1.248-2.242-1.31-3.608-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.062-1.366.334-2.633 1.31-3.608.975-.975 2.242-1.248 3.608-1.31 1.266-.058 1.646-.07 4.85-.07zM12 0C8.741 0 8.332.014 7.052.072c-1.95.089-3.663.567-5.038 1.942C.639 3.389.161 5.102.072 7.052.014 8.332 0 8.741 0 12s.014 3.668.072 4.948c.089 1.95.567 3.663 1.942 5.038 1.375 1.375 3.088 1.853 5.038 1.942 1.28.058 1.689.072 4.948.072s3.668-.014 4.948-.072c1.95-.089 3.663-.567 5.038-1.942 1.375-1.375 1.853-3.088 1.942-5.038.058-1.28.072-1.689.072-4.948s-.014-3.668-.072-4.948c-.089-1.95-.567-3.663-1.942-5.038C20.611.639 18.898.161 16.948.072 15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 11-2.881 0 1.44 1.44 0 012.88 0z"/>
+                </svg>
+            </a>
+            
+            <!-- GitHub icon -->
+            <a href="#" class="social-icon github" aria-label="GitHub profile (static placeholder)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-hidden="true">
+                    <path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.49.5.09.68-.21.68-.48 0-.24-.01-.88-.01-1.73-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02.8-.22 1.65-.33 2.5-.33.85 0 1.7.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85 0 1.34-.01 2.42-.01 2.75 0 .27.18.58.69.48C19.13 20.17 22 16.42 22 12c0-5.52-4.48-10-10-10z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
